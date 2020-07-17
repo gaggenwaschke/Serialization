@@ -38,7 +38,7 @@ public:
 
 Serialization::MemberDescriptor<MyClass, decltype(MyClass::a), &MyClass::a> MyClass::descriptorA{"a"};
 Serialization::MemberDescriptor<MyClass, decltype(MyClass::b), &MyClass::b> MyClass::descriptorB{"b"};
-std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> descriptors = {MyClass::descriptorA, MyClass::descriptorB};
+std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> MyClass::descriptors = {MyClass::descriptorA, MyClass::descriptorB};
 
 //-------------------------------- CONSTANTS ----------------------------------
 
@@ -46,26 +46,23 @@ std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> des
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+template <class SerializeableT, class MemberT, MemberT SerializeableT::* member>
+void print(const Serialization::MemberDescriptor<SerializeableT, MemberT, member>& descriptor, SerializeableT& object)
+{
+    std::cout << descriptor.getName() << "(" << typeid(MemberT).name() << "): " << descriptor.getMemberValue(object) << std::endl;
+}
 
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1,2};
     MyClass mc2{3,4};
 
-    std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> descriptors2 = {MyClass::descriptorA, MyClass::descriptorB};
-
     std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+    // print name value pairs
     std::apply([&mc1](const auto &... args) {
-        ((std::cout << args.getName() << ":" << args.getMemberValue(mc1) << std::endl), ...);
-    }, descriptors2);
+        (print(args, mc1), ...);
+    }, MyClass::descriptors);
 
-    //std::cout << MyClass::descriptors << std::endl;
-
-    std::cout << MyClass::descriptorA.getMemberValue(mc1) << std::endl;
-    std::cout << MyClass::descriptorB.getMemberValue(mc1) << std::endl;
-
-    std::cout << MyClass::descriptorA.getMemberValue(mc2) << std::endl;
-    std::cout << MyClass::descriptorB.getMemberValue(mc2) << std::endl;
     return 0;
 }
 
