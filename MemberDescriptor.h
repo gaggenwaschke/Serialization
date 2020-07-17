@@ -39,11 +39,14 @@ class MemberDescriptor
     MemberDescriptor() = delete;
     MemberDescriptor(const MemberDescriptor& other) = delete;
     MemberDescriptor& operator=(const MemberDescriptor& other) = delete;
+
 public:
     constexpr MemberDescriptor(const char* const name);    
 
-    MemberT getMemberValue(const SerializeableT& object);
-    void setMemberValue(SerializeableT& object, MemberT value);
+    constexpr MemberT getMemberValue(const SerializeableT& object) const;
+    constexpr void setMemberValue(SerializeableT& object, MemberT value) const;
+
+    constexpr const char* const getName() const;
 
 private:
     /** name of the field */
