@@ -13,7 +13,7 @@
 
 #include "MemberDescriptor.h"
 #include <iostream>
-#include <array>
+#include <tuple>
 
 //--------------------------- STRUCTS AND ENUMS -------------------------------
 
@@ -32,10 +32,13 @@ private:
 public:
     static Serialization::MemberDescriptor<MyClass, decltype(MyClass::a), &MyClass::a> descriptorA;
     static Serialization::MemberDescriptor<MyClass, decltype(MyClass::b), &MyClass::b> descriptorB;    
+
+    static std::tuple<decltype(descriptorA)&, decltype(descriptorB)&> descriptors;
 };
 
 Serialization::MemberDescriptor<MyClass, decltype(MyClass::a), &MyClass::a> MyClass::descriptorA{"a"};
 Serialization::MemberDescriptor<MyClass, decltype(MyClass::b), &MyClass::b> MyClass::descriptorB{"b"};
+std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> descriptors = {MyClass::descriptorA, MyClass::descriptorB};
 
 //-------------------------------- CONSTANTS ----------------------------------
 
