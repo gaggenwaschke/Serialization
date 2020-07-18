@@ -19,7 +19,7 @@
 
 template <class SerializeableT, class MemberT>
 constexpr Serialization::MemberDescriptor<SerializeableT, MemberT>::MemberDescriptor(
-    MemberT SerializeableT::*member, const char* const name) : member(member), name(name)
+    const MemberT SerializeableT::*member, const char* const name) : member(member), name(name)
 {
 }
 

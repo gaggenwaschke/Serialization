@@ -39,7 +39,7 @@ class MemberDescriptor
     MemberDescriptor() = delete;
 
 public:
-    constexpr MemberDescriptor(MemberT SerializeableT::*member, const char* const name);    
+    constexpr MemberDescriptor(const MemberT SerializeableT::*member, const char* const name);    
 
     constexpr MemberT getMemberValue(const SerializeableT& object) const;
     constexpr void setMemberValue(SerializeableT& object, MemberT value) const;
