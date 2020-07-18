@@ -17,8 +17,9 @@
 
 //-------------------------------- CONSTANTS ----------------------------------
 
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
-constexpr Serialization::MemberDescriptor<SerializeableT, MemberT, member>::MemberDescriptor(const char* const name) : name(name)
+template <class SerializeableT, class MemberT>
+constexpr Serialization::MemberDescriptor<SerializeableT, MemberT>::MemberDescriptor(
+    MemberT SerializeableT::*member, const char* const name) : member(member), name(name)
 {
 }
 
@@ -26,20 +27,20 @@ constexpr Serialization::MemberDescriptor<SerializeableT, MemberT, member>::Memb
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
-constexpr MemberT Serialization::MemberDescriptor<SerializeableT, MemberT, member>::getMemberValue(const SerializeableT& object) const
+template <class SerializeableT, class MemberT>
+constexpr MemberT Serialization::MemberDescriptor<SerializeableT, MemberT>::getMemberValue(const SerializeableT& object) const
 {
     return object.*member;
 }
 
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
-constexpr void Serialization::MemberDescriptor<SerializeableT, MemberT, member>::setMemberValue(SerializeableT& object, MemberT value) const
+template <class SerializeableT, class MemberT>
+constexpr void Serialization::MemberDescriptor<SerializeableT, MemberT>::setMemberValue(SerializeableT& object, MemberT value) const
 {
     object.*member = value;
-}
+} 
 
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
-constexpr const char* const Serialization::MemberDescriptor<SerializeableT, MemberT, member>::getName() const
+template <class SerializeableT, class MemberT>
+constexpr const char* const Serialization::MemberDescriptor<SerializeableT, MemberT>::getName() const
 {
     return name;
 }

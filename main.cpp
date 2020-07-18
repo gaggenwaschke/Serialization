@@ -20,7 +20,7 @@
 class MyClass
 {
 public:
-    MyClass(int a, char b) : a(a), b(b)
+    MyClass(int a, char b, int c) : a(a), b(b), c(c)
     {
 
     }
@@ -28,17 +28,15 @@ public:
 private:
     int a;
     char b;
+    int c;
 
 public:
-    static Serialization::MemberDescriptor<MyClass, decltype(MyClass::a), &MyClass::a> descriptorA;
-    static Serialization::MemberDescriptor<MyClass, decltype(MyClass::b), &MyClass::b> descriptorB;    
-
-    static std::tuple<decltype(descriptorA)&, decltype(descriptorB)&> descriptors;
+    static constexpr auto descriptors = std::make_tuple(
+        Serialization::MemberDescriptor(&MyClass::a, "a"),
+        Serialization::MemberDescriptor(&MyClass::b, "b"),
+        Serialization::MemberDescriptor(&MyClass::c, "c")
+    );
 };
-
-Serialization::MemberDescriptor<MyClass, decltype(MyClass::a), &MyClass::a> MyClass::descriptorA{"a"};
-Serialization::MemberDescriptor<MyClass, decltype(MyClass::b), &MyClass::b> MyClass::descriptorB{"b"};
-std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> MyClass::descriptors = {MyClass::descriptorA, MyClass::descriptorB};
 
 //-------------------------------- CONSTANTS ----------------------------------
 
@@ -46,16 +44,16 @@ std::tuple<decltype(MyClass::descriptorA)&, decltype(MyClass::descriptorB)&> MyC
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-template <class SerializeableT, class MemberT, MemberT SerializeableT::* member>
-void print(const Serialization::MemberDescriptor<SerializeableT, MemberT, member>& descriptor, SerializeableT& object)
+template <class SerializeableT, class MemberT>
+void print(const Serialization::MemberDescriptor<SerializeableT, MemberT>& descriptor, SerializeableT& object)
 {
     std::cout << descriptor.getName() << "(" << typeid(MemberT).name() << "): " << descriptor.getMemberValue(object) << std::endl;
 }
 
 int main(int argc, char* argv[], char* env[])
 {
-    MyClass mc1{1,2};
-    MyClass mc2{3,4};
+    MyClass mc1{1, '2', 3};
+    MyClass mc2{4, '5', 6};
 
     std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
     // print name value pairs
@@ -65,7 +63,7 @@ int main(int argc, char* argv[], char* env[])
 
     return 0;
 }
-
+ 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------

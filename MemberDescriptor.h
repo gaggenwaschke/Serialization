@@ -16,7 +16,7 @@
 
 namespace Serialization
 {
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
+template <class SerializeableT, class MemberT>
 class MemberDescriptor;
 }
 
@@ -32,16 +32,14 @@ namespace Serialization
 /**
  * @brief describes a member of a class for serialization
  */
-template <class SerializeableT, class MemberT, MemberT SerializeableT::*member>
+template <class SerializeableT, class MemberT>
 class MemberDescriptor
 {
     // delete default constructors
     MemberDescriptor() = delete;
-    MemberDescriptor(const MemberDescriptor& other) = delete;
-    MemberDescriptor& operator=(const MemberDescriptor& other) = delete;
 
 public:
-    constexpr MemberDescriptor(const char* const name);    
+    constexpr MemberDescriptor(MemberT SerializeableT::*member, const char* const name);    
 
     constexpr MemberT getMemberValue(const SerializeableT& object) const;
     constexpr void setMemberValue(SerializeableT& object, MemberT value) const;
@@ -49,6 +47,8 @@ public:
     constexpr const char* const getName() const;
 
 private:
+    /** class member */
+    const MemberT SerializeableT::*member;
     /** name of the field */
     const char* const name;
 };
