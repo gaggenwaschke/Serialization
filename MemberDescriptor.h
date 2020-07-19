@@ -56,12 +56,6 @@ private:
     const MemberT SerializeableT::*member;
     /** name of the field */
     const char* const name;
-
-public:
-    static constexpr auto descriptors = std::make_tuple(
-        MemberDescriptor<MemberDescriptor, decltype(MemberDescriptor::member)>(&MemberDescriptor::member, "memberPtr"),
-        MemberDescriptor<MemberDescriptor, decltype(MemberDescriptor::name)>(&MemberDescriptor::name, "name")
-    );
 };
 } // Serialization
 

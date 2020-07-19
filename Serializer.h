@@ -44,30 +44,91 @@ public:
     template <class SerializeableT>
     void serialize(std::ostream& os, const SerializeableT& object);
 
+    template <class SerialzeableT>
+    void serializeStructure(std::ostream& os);
+
+protected:
+    virtual void serializeObjectStart(std::ostream& os)
+    {
+        os << "{";
+    }
+
+    virtual void serializeObjectEnd(std::ostream& os)
+    {
+        os << "}";
+    }
+
+    virtual void serializeMember(std::ostream& os, const char* const memberName, int value)
+    {
+        os << "\"" << memberName << "\":" << value;
+    }
+
+    virtual void serializeMember(std::ostream& os, const char* const memberName, char value)
+    {
+        os << "\"" << memberName << "\":" << value;
+    }
+
+    virtual void serializeMember(std::ostream& os, const char* const memberName, bool value)
+    {
+        os << "\"" << memberName << "\":" << (value ? "true" : "false");
+    }
+
+    virtual void serializeMember(std::ostream& os, const char* const memberName, const char* const value)
+    {
+        os << "\"" << memberName << "\":\"" << value << "\"";
+    }
+
+    virtual void serializeMemberSeperator(std::ostream& os)
+    {
+        os << ",";
+    }
+
 private:
+    /**
+     * @brief serializes data field member
+     * 
+     * @tparam SerializeableT 
+     * @tparam MemberT 
+     * @param os 
+     * @param descriptor 
+     * @param object 
+     * @param firstMember used for seperator control
+     */
     template <class SerializeableT, class MemberT>
     void serializeMember(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         const SerializeableT& object,
-        typename std::enable_if_t<!std::is_member_pointer<MemberT>::value>* = 0)
+        bool& firstMember)
         {
-            os << descriptor.getName() << ": " << descriptor.getMemberValue(object) << std::endl;
+            // forward to virtual function that does member seperators
+            if (!firstMember) {
+                serializeMemberSeperator(os);
+            }
+            firstMember = false;
+
+            // forward to virtual functions for value output
+            serializeMember(os, descriptor.getName(), descriptor.getMemberValue(object));
         }
 
     /** used to convert member ptr to the type of the member */
     template <class SerializeableT, class MemberT>
-    MemberT member_ptr_to_type(MemberT SerializeableT::*);
+    MemberT memberPtrToType(MemberT SerializeableT::*);
     
+    /**
+     * @brief serializes a member descriptor of a serializeable class
+     * 
+     * @tparam SerializeableT 
+     * @tparam MemberT 
+     * @param os 
+     * @param descriptor 
+     */
     template <class SerializeableT, class MemberT>
-    void serializeMember(
+    void serializeDescriptor(
         std::ostream& os,
-        const MemberDescriptor<SerializeableT, MemberT>& descriptor,
-        const SerializeableT& object,
-        typename std::enable_if_t<std::is_member_pointer<MemberT>::value>* = 0)
+        const MemberDescriptor<SerializeableT, MemberT>& descriptor)
         {
-            using memberT = decltype(member_ptr_to_type(descriptor.getMemberValue(object)));
-            os << "type of \"" << descriptor.getName() << "\": " << typeid(memberT).name() << std::endl;
+            os << "type of \"" << descriptor.getName() << "\": " << typeid(MemberT).name() << std::endl;
         }
     
 };
