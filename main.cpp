@@ -12,6 +12,7 @@
 //--------------------------------- INCLUDES ----------------------------------
 
 #include "MemberDescriptor.h"
+#include "Serializer.h"
 #include <iostream>
 #include <tuple>
 
@@ -55,11 +56,19 @@ int main(int argc, char* argv[], char* env[])
     MyClass mc1{1, '2', 3};
     MyClass mc2{4, '5', 6};
 
-    std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+    Serialization::Serializer s1;
+
+    s1.serialize(std::cout, mc1);
+
+
+
+    //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
     // print name value pairs
+    /*
     std::apply([&mc1](const auto &... args) {
         (print(args, mc1), ...);
     }, MyClass::descriptors);
+    */
 
     return 0;
 }

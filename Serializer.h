@@ -23,7 +23,7 @@ class Serializer;
 
 #include <iostream>
 
-namespace Serial
+namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
 
@@ -32,14 +32,25 @@ namespace Serial
 /**
  * @brief generic serializer for C++ classes
  */
-class Serialization
+class Serializer
 {
     // delete default constructors
-    Serializer() = delete;
+    //Serializer() = delete;
     Serializer(const Serializer& other) = delete;
     Serializer& operator=(const Serializer& other) = delete;
 public:
+    Serializer() {}
+
+    template <class SerializeableT>
+    void serialize(std::ostream& os, const SerializeableT& object);
+
+private:
+    template <class SerializeableT, class MemberT>
+    void serializeMember(std::ostream& os, const MemberDescriptor<SerializeableT, MemberT>& descriptor, const SerializeableT& object);
     
 };
 } // Serial
+
+// template functions
+#include "Serializer.cpp"
 #endif //__SERIALIZER_H__
