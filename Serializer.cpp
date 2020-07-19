@@ -38,9 +38,12 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
 template <class SerializeableT>
 void Serialization::Serializer::serializeStructure(std::ostream& os)
 {
+    serializeDescriptorsStart(os);
     std::apply([&os, this](const auto& ...descriptor){
-        (this->serializeDescriptor(os, descriptor), ...);
+        bool firstDescriptor = true;
+        (this->serializeDescriptor(os, descriptor, firstDescriptor), ...);
     }, SerializeableT::descriptors);
+    serializeDescriptorsEnd(os);
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------

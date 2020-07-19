@@ -83,6 +83,41 @@ protected:
         os << ",";
     }
 
+    virtual void serializeDescriptorsStart(std::ostream& os)
+    {
+        serializeObjectStart(os);
+    }
+
+    virtual void serializeDescriptorsEnd(std::ostream& os)
+    {
+        serializeObjectEnd(os);
+    }
+
+    virtual void serializeDescriptorSeperator(std::ostream& os)
+    {
+        serializeMemberSeperator(os);
+    }
+
+    virtual void serializeDescriptorChar(std::ostream& os, const char* const name)
+    {
+        os << "\"" << name << "\":\"CHAR\"";
+    }
+
+    virtual void serializeDescriptorInt(std::ostream& os, const char* const name)
+    {
+        os << "\"" << name << "\":\"INT\"";
+    }
+
+    virtual void serializeDescriptorString(std::ostream& os, const char* const name)
+    {
+        os << "\"" << name << "\":\"STRING\"";
+    }
+
+    virtual void serializeDescriptorBool(std::ostream& os, const char* const name)
+    {
+        os << "\"" << name << "\":\"BOOLEAN\"";
+    }
+
 private:
     /**
      * @brief serializes data field member
@@ -104,8 +139,9 @@ private:
             // forward to virtual function that does member seperators
             if (!firstMember) {
                 serializeMemberSeperator(os);
+            } else {
+                firstMember = false;
             }
-            firstMember = false;
 
             // forward to virtual functions for value output
             serializeMember(os, descriptor.getName(), descriptor.getMemberValue(object));
@@ -114,6 +150,34 @@ private:
     /** used to convert member ptr to the type of the member */
     template <class SerializeableT, class MemberT>
     MemberT memberPtrToType(MemberT SerializeableT::*);
+
+    template <class T,
+        typename std::enable_if_t<std::is_same_v<char, T>, int> = 0>
+    void serializeDescriptor(std::ostream& os, const char* const name)
+    {
+        serializeDescriptorChar(os, name);
+    }
+
+    template <class T,
+        typename std::enable_if_t<std::is_same_v<int, T>, int> = 0>
+    void serializeDescriptor(std::ostream& os, const char* const name)
+    {
+        serializeDescriptorInt(os, name);
+    }
+
+    template <class T,
+        typename std::enable_if_t<std::is_same_v<const char*, T>, int> = 0>
+    void serializeDescriptor(std::ostream& os, const char* const name)
+    {
+        serializeDescriptorString(os, name);
+    }
+
+    template <class T,
+        typename std::enable_if_t<std::is_same_v<bool, T>, int> = 0>
+    void serializeDescriptor(std::ostream& os, const char* const name)
+    {
+        serializeDescriptorBool(os, name);
+    }
     
     /**
      * @brief serializes a member descriptor of a serializeable class
@@ -126,9 +190,17 @@ private:
     template <class SerializeableT, class MemberT>
     void serializeDescriptor(
         std::ostream& os,
-        const MemberDescriptor<SerializeableT, MemberT>& descriptor)
+        const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+        bool& firstDescriptor)
         {
-            os << "type of \"" << descriptor.getName() << "\": " << typeid(MemberT).name() << std::endl;
+            // forward seperator serialization
+            if (!firstDescriptor) {
+                serializeDescriptorSeperator(os);
+            } else {
+                firstDescriptor = false;
+            }
+
+            serializeDescriptor<MemberT>(os, descriptor.getName());
         }
     
 };

@@ -64,8 +64,11 @@ int main(int argc, char* argv[], char* env[])
     Serialization::Serializer s1;
 
     s1.serialize(std::cout, mc1);
+    std::cout << std::endl;
     s1.serialize(std::cout, mc2);
-    //s1.serializeStructure<MyClass>(std::cout);
+    std::cout << std::endl;
+    s1.serializeStructure<MyClass>(std::cout);
+    std::cout << std::endl;
 
     //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
     // print name value pairs
