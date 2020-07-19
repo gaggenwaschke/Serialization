@@ -46,7 +46,29 @@ public:
 
 private:
     template <class SerializeableT, class MemberT>
-    void serializeMember(std::ostream& os, const MemberDescriptor<SerializeableT, MemberT>& descriptor, const SerializeableT& object);
+    void serializeMember(
+        std::ostream& os,
+        const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+        const SerializeableT& object,
+        typename std::enable_if_t<!std::is_member_pointer<MemberT>::value>* = 0)
+        {
+            os << descriptor.getName() << ": " << descriptor.getMemberValue(object) << std::endl;
+        }
+
+    /** used to convert member ptr to the type of the member */
+    template <class SerializeableT, class MemberT>
+    MemberT member_ptr_to_type(MemberT SerializeableT::*);
+    
+    template <class SerializeableT, class MemberT>
+    void serializeMember(
+        std::ostream& os,
+        const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+        const SerializeableT& object,
+        typename std::enable_if_t<std::is_member_pointer<MemberT>::value>* = 0)
+        {
+            using memberT = decltype(member_ptr_to_type(descriptor.getMemberValue(object)));
+            os << "type of \"" << descriptor.getName() << "\": " << typeid(memberT).name() << std::endl;
+        }
     
 };
 } // Serial

@@ -14,6 +14,7 @@
 #include "Serializer.h"
 
 #include <tuple>
+#include <type_traits>
 
 //--------------------------- STRUCTS AND ENUMS -------------------------------
 
@@ -35,13 +36,5 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------
 
-template <class SerializeableT, class MemberT>
-void Serialization::Serializer::serializeMember(
-    std::ostream& os,
-    const MemberDescriptor<SerializeableT, MemberT>& descriptor,
-    const SerializeableT& object)
-{
-    os << descriptor.getName() << ": " << descriptor.getMemberValue(object) << std::endl;
-}
 
 //---------------------------- STATIC FUNCTIONS -------------------------------

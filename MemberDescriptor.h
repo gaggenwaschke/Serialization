@@ -22,6 +22,7 @@ class MemberDescriptor;
 
 //--------------------------------- INCLUDES ----------------------------------
 
+#include <tuple>
 
 namespace Serialization
 {
@@ -38,6 +39,10 @@ class MemberDescriptor
     // delete default constructors
     MemberDescriptor() = delete;
 
+private:
+    /** used to deduce a member pointers unnderlaying type */
+    template <auto> struct DeduceType;
+
 public:
     constexpr MemberDescriptor(const MemberT SerializeableT::*member, const char* const name);    
 
@@ -51,6 +56,12 @@ private:
     const MemberT SerializeableT::*member;
     /** name of the field */
     const char* const name;
+
+public:
+    static constexpr auto descriptors = std::make_tuple(
+        MemberDescriptor<MemberDescriptor, decltype(MemberDescriptor::member)>(&MemberDescriptor::member, "memberPtr"),
+        MemberDescriptor<MemberDescriptor, decltype(MemberDescriptor::name)>(&MemberDescriptor::name, "name")
+    );
 };
 } // Serialization
 
