@@ -50,5 +50,4 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------
 
-
 //---------------------------- STATIC FUNCTIONS -------------------------------

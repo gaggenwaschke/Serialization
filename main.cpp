@@ -12,7 +12,7 @@
 //--------------------------------- INCLUDES ----------------------------------
 
 #include "MemberDescriptor.h"
-#include "Serializer.h"
+#include "SerializerJSON.h"
 #include <iostream>
 #include <tuple>
 
@@ -61,7 +61,7 @@ int main(int argc, char* argv[], char* env[])
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
     MyClass mc2{4, '5', 6, "This is going well", false};
 
-    Serialization::Serializer s1;
+    Serialization::JSONSerializer s1;
 
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;

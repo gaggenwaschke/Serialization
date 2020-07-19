@@ -48,75 +48,21 @@ public:
     void serializeStructure(std::ostream& os);
 
 protected:
-    virtual void serializeObjectStart(std::ostream& os)
-    {
-        os << "{";
-    }
-
-    virtual void serializeObjectEnd(std::ostream& os)
-    {
-        os << "}";
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, int value)
-    {
-        os << "\"" << memberName << "\":" << value;
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, char value)
-    {
-        os << "\"" << memberName << "\":" << value;
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, bool value)
-    {
-        os << "\"" << memberName << "\":" << (value ? "true" : "false");
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, const char* const value)
-    {
-        os << "\"" << memberName << "\":\"" << value << "\"";
-    }
-
-    virtual void serializeMemberSeperator(std::ostream& os)
-    {
-        os << ",";
-    }
-
-    virtual void serializeDescriptorsStart(std::ostream& os)
-    {
-        serializeObjectStart(os);
-    }
-
-    virtual void serializeDescriptorsEnd(std::ostream& os)
-    {
-        serializeObjectEnd(os);
-    }
-
-    virtual void serializeDescriptorSeperator(std::ostream& os)
-    {
-        serializeMemberSeperator(os);
-    }
-
-    virtual void serializeDescriptorChar(std::ostream& os, const char* const name)
-    {
-        os << "\"" << name << "\":\"CHAR\"";
-    }
-
-    virtual void serializeDescriptorInt(std::ostream& os, const char* const name)
-    {
-        os << "\"" << name << "\":\"INT\"";
-    }
-
-    virtual void serializeDescriptorString(std::ostream& os, const char* const name)
-    {
-        os << "\"" << name << "\":\"STRING\"";
-    }
-
-    virtual void serializeDescriptorBool(std::ostream& os, const char* const name)
-    {
-        os << "\"" << name << "\":\"BOOLEAN\"";
-    }
+    virtual void serializeObjectStart(std::ostream& os) = 0;
+    virtual void serializeObjectEnd(std::ostream& os) = 0;
+    virtual void serializeMember(std::ostream& os, const char* const memberName, int value) = 0;
+    virtual void serializeMember(std::ostream& os, const char* const memberName, char value) = 0;
+    virtual void serializeMember(std::ostream& os, const char* const memberName, bool value) = 0;
+    virtual void serializeMember(std::ostream& os, const char* const memberName, const char* const value) = 0;
+    virtual void serializeMemberSeperator(std::ostream& os) = 0;
+    virtual void serializeDescriptorsStart(std::ostream& os) {serializeObjectStart(os);}
+    virtual void serializeDescriptorsEnd(std::ostream& os) {serializeObjectEnd(os);}
+    virtual void serializeDescriptorSeperator(std::ostream& os) {serializeMemberSeperator(os);}
+    virtual void serializeDescriptorInnerClassName(std::ostream& os, const char* const name) = 0;
+    virtual void serializeDescriptorChar(std::ostream& os, const char* const name) = 0;
+    virtual void serializeDescriptorInt(std::ostream& os, const char* const name) = 0;
+    virtual void serializeDescriptorString(std::ostream& os, const char* const name) = 0;
+    virtual void serializeDescriptorBool(std::ostream& os, const char* const name) = 0;
 
 private:
     /**
@@ -151,29 +97,42 @@ private:
     template <class SerializeableT, class MemberT>
     MemberT memberPtrToType(MemberT SerializeableT::*);
 
-    template <class T,
-        typename std::enable_if_t<std::is_same_v<char, T>, int> = 0>
+    template <class MemberT,
+        typename std::enable_if_t<
+            !std::is_same_v<char, MemberT> &&
+            !std::is_same_v<int, MemberT> &&
+            !std::is_same_v<const char*, MemberT> &&
+            !std::is_same_v<bool, MemberT> &&
+            !std::is_integral_v<MemberT>, int>  = 0>
+    void serializeDescriptor(std::ostream& os, const char* const name)
+    {
+        serializeDescriptorInnerClassName(os, name);
+        serializeStructure<MemberT>(os);
+    }
+
+    template <class MemberT,
+        typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
     void serializeDescriptor(std::ostream& os, const char* const name)
     {
         serializeDescriptorChar(os, name);
     }
 
-    template <class T,
-        typename std::enable_if_t<std::is_same_v<int, T>, int> = 0>
+    template <class MemberT,
+        typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
     void serializeDescriptor(std::ostream& os, const char* const name)
     {
         serializeDescriptorInt(os, name);
     }
 
-    template <class T,
-        typename std::enable_if_t<std::is_same_v<const char*, T>, int> = 0>
+    template <class MemberT,
+        typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
     void serializeDescriptor(std::ostream& os, const char* const name)
     {
         serializeDescriptorString(os, name);
     }
 
-    template <class T,
-        typename std::enable_if_t<std::is_same_v<bool, T>, int> = 0>
+    template <class MemberT,
+        typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
     void serializeDescriptor(std::ostream& os, const char* const name)
     {
         serializeDescriptorBool(os, name);
