@@ -39,8 +39,6 @@ class Serializer
     Serializer(const Serializer& other) = delete;
     Serializer& operator=(const Serializer& other) = delete;
 public:
-    Serializer() {}
-
     template <class SerializeableT,
         typename std::enable_if_t<
             !(std::is_same_v<char, SerializeableT> ||
@@ -57,16 +55,15 @@ public:
             std::is_same_v<const char*, SerializeableT> ||
             std::is_same_v<bool, SerializeableT>
         ), int>  = 0>
-    void serialize(std::ostream& os, const SerializeableT& value)
-    {
-        serializeValue(os, value);
-    }
+    void serialize(std::ostream& os, const SerializeableT& value);
 
 
     template <class SerialzeableT>
     void serializeStructure(std::ostream& os);
 
 protected:
+    Serializer();
+
     virtual void serializeObjectStart(std::ostream& os) = 0;
     virtual void serializeObjectEnd(std::ostream& os) = 0;
     virtual void serializeName(std::ostream& os, const char* const name) = 0;
@@ -83,38 +80,12 @@ protected:
     virtual void serializeTypeString(std::ostream& os) = 0;
 
 private:
-    /**
-     * @brief serializes data field member
-     * 
-     * @tparam SerializeableT 
-     * @tparam MemberT 
-     * @param os 
-     * @param descriptor 
-     * @param object 
-     * @param firstMember used for seperator control
-     */
     template <class SerializeableT, class MemberT>
     void serializeMember(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         const SerializeableT& object,
-        bool& firstMember)
-        {
-            // forward to virtual function that does member seperators
-            if (!firstMember) {
-                serializeSeperator(os);
-            } else {
-                firstMember = false;
-            }
-
-            serializeName(os, descriptor.getName());
-            // forward to virtual functions for value output
-            serialize(os, descriptor.getMemberValue(object));
-        }
-
-    /** used to convert member ptr to the type of the member */
-    template <class SerializeableT, class MemberT>
-    MemberT memberPtrToType(MemberT SerializeableT::*);
+        bool& firstMember);
 
     template <class MemberT,
         typename std::enable_if_t<
@@ -122,66 +93,29 @@ private:
             !std::is_same_v<int, MemberT> &&
             !std::is_same_v<const char*, MemberT> &&
             !std::is_same_v<bool, MemberT>, int>  = 0>
-    void serializeType(std::ostream& os)
-    {
-        serializeStructure<MemberT>(os);
-    }
+    void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
-    void serializeType(std::ostream& os)
-    {
-        serializeTypeChar(os);
-    }
+    void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
-    void serializeType(std::ostream& os)
-    {
-        serializeTypeInt(os);
-    }
+    void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
-    void serializeType(std::ostream& os)
-    {
-        serializeTypeString(os);
-    }
+    void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
-    void serializeType(std::ostream& os)
-    {
-        serializeTypeBool(os);
-    }
-    
-    /**
-     * @brief serializes a member descriptor of a serializeable class
-     * 
-     * @tparam SerializeableT 
-     * @tparam MemberT 
-     * @param os 
-     * @param descriptor 
-     */
+    void serializeType(std::ostream& os);
+
     template <class SerializeableT, class MemberT>
     void serializeDescriptor(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
-        bool& firstDescriptor)
-        {
-            // forward seperator serialization
-            if (!firstDescriptor) {
-                serializeSeperator(os);
-            } else {
-                firstDescriptor = false;
-            }
-
-            // forward member name serialization
-            serializeName(os, descriptor.getName());
-
-            // forward serialization of type info
-            serializeType<MemberT>(os);
-        }
+        bool& firstDescriptor);
     
 };
 } // Serial
