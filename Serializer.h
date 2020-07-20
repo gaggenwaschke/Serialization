@@ -109,7 +109,7 @@ private:
 
             serializeName(os, descriptor.getName());
             // forward to virtual functions for value output
-            serializeValue(os, descriptor.getMemberValue(object));
+            serialize(os, descriptor.getMemberValue(object));
         }
 
     /** used to convert member ptr to the type of the member */

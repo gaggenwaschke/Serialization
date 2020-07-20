@@ -21,7 +21,7 @@
 class InnerClass
 {
 public:
-    InnerClass() {}
+    InnerClass() : a(1) {}
 
 private:
     int a;
@@ -54,8 +54,8 @@ public:
         Serialization::MemberDescriptor(&MyClass::b, "b"),
         Serialization::MemberDescriptor(&MyClass::c, "c"),
         Serialization::MemberDescriptor(&MyClass::d, "d"),
-        Serialization::MemberDescriptor(&MyClass::e, "e")
-     //   Serialization::MemberDescriptor(&MyClass::f, "f")
+        Serialization::MemberDescriptor(&MyClass::e, "e"),
+        Serialization::MemberDescriptor(&MyClass::f, "f")
     );
 };
 
