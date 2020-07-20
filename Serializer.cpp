@@ -24,7 +24,12 @@
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-template <class SerializeableT>
+template <class SerializeableT,
+        typename std::enable_if_t<
+            !(std::is_same_v<char, SerializeableT> ||
+            std::is_same_v<int, SerializeableT> ||
+            std::is_same_v<const char*, SerializeableT> ||
+            std::is_same_v<bool, SerializeableT>), int>  = 0>
 void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT& object)
 {
     serializeObjectStart(os);
@@ -38,12 +43,12 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
 template <class SerializeableT>
 void Serialization::Serializer::serializeStructure(std::ostream& os)
 {
-    serializeDescriptorsStart(os);
+    serializeObjectStart(os);
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
         (this->serializeDescriptor(os, descriptor, firstDescriptor), ...);
     }, SerializeableT::descriptors);
-    serializeDescriptorsEnd(os);
+    serializeObjectEnd(os);
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------

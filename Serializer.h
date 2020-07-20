@@ -41,8 +41,27 @@ class Serializer
 public:
     Serializer() {}
 
-    template <class SerializeableT>
+    template <class SerializeableT,
+        typename std::enable_if_t<
+            !(std::is_same_v<char, SerializeableT> ||
+            std::is_same_v<int, SerializeableT> ||
+            std::is_same_v<const char*, SerializeableT> ||
+            std::is_same_v<bool, SerializeableT>), int>  = 0>
     void serialize(std::ostream& os, const SerializeableT& object);
+
+    template <class SerializeableT,
+        typename std::enable_if_t<
+        (
+            std::is_same_v<char, SerializeableT> ||
+            std::is_same_v<int, SerializeableT> ||
+            std::is_same_v<const char*, SerializeableT> ||
+            std::is_same_v<bool, SerializeableT>
+        ), int>  = 0>
+    void serialize(std::ostream& os, const SerializeableT& value)
+    {
+        serializeValue(os, value);
+    }
+
 
     template <class SerialzeableT>
     void serializeStructure(std::ostream& os);
@@ -50,19 +69,18 @@ public:
 protected:
     virtual void serializeObjectStart(std::ostream& os) = 0;
     virtual void serializeObjectEnd(std::ostream& os) = 0;
-    virtual void serializeMember(std::ostream& os, const char* const memberName, int value) = 0;
-    virtual void serializeMember(std::ostream& os, const char* const memberName, char value) = 0;
-    virtual void serializeMember(std::ostream& os, const char* const memberName, bool value) = 0;
-    virtual void serializeMember(std::ostream& os, const char* const memberName, const char* const value) = 0;
-    virtual void serializeMemberSeperator(std::ostream& os) = 0;
-    virtual void serializeDescriptorsStart(std::ostream& os) {serializeObjectStart(os);}
-    virtual void serializeDescriptorsEnd(std::ostream& os) {serializeObjectEnd(os);}
-    virtual void serializeDescriptorSeperator(std::ostream& os) {serializeMemberSeperator(os);}
-    virtual void serializeDescriptorInnerClassName(std::ostream& os, const char* const name) = 0;
-    virtual void serializeDescriptorChar(std::ostream& os, const char* const name) = 0;
-    virtual void serializeDescriptorInt(std::ostream& os, const char* const name) = 0;
-    virtual void serializeDescriptorString(std::ostream& os, const char* const name) = 0;
-    virtual void serializeDescriptorBool(std::ostream& os, const char* const name) = 0;
+    virtual void serializeName(std::ostream& os, const char* const name) = 0;
+    virtual void serializeSeperator(std::ostream& os) = 0;
+
+    virtual void serializeValue(std::ostream& os, const int& value) = 0;
+    virtual void serializeValue(std::ostream& os, const char& value) = 0;
+    virtual void serializeValue(std::ostream& os, const bool& value) = 0;
+    virtual void serializeValue(std::ostream& os, const char* const value) = 0;
+
+    virtual void serializeTypeInt(std::ostream& os) = 0;
+    virtual void serializeTypeChar(std::ostream& os) = 0;
+    virtual void serializeTypeBool(std::ostream& os) = 0;
+    virtual void serializeTypeString(std::ostream& os) = 0;
 
 private:
     /**
@@ -84,13 +102,14 @@ private:
         {
             // forward to virtual function that does member seperators
             if (!firstMember) {
-                serializeMemberSeperator(os);
+                serializeSeperator(os);
             } else {
                 firstMember = false;
             }
 
+            serializeName(os, descriptor.getName());
             // forward to virtual functions for value output
-            serializeMember(os, descriptor.getName(), descriptor.getMemberValue(object));
+            serializeValue(os, descriptor.getMemberValue(object));
         }
 
     /** used to convert member ptr to the type of the member */
@@ -102,40 +121,38 @@ private:
             !std::is_same_v<char, MemberT> &&
             !std::is_same_v<int, MemberT> &&
             !std::is_same_v<const char*, MemberT> &&
-            !std::is_same_v<bool, MemberT> &&
-            !std::is_integral_v<MemberT>, int>  = 0>
-    void serializeDescriptor(std::ostream& os, const char* const name)
+            !std::is_same_v<bool, MemberT>, int>  = 0>
+    void serializeType(std::ostream& os)
     {
-        serializeDescriptorInnerClassName(os, name);
         serializeStructure<MemberT>(os);
     }
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
-    void serializeDescriptor(std::ostream& os, const char* const name)
+    void serializeType(std::ostream& os)
     {
-        serializeDescriptorChar(os, name);
+        serializeTypeChar(os);
     }
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
-    void serializeDescriptor(std::ostream& os, const char* const name)
+    void serializeType(std::ostream& os)
     {
-        serializeDescriptorInt(os, name);
+        serializeTypeInt(os);
     }
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
-    void serializeDescriptor(std::ostream& os, const char* const name)
+    void serializeType(std::ostream& os)
     {
-        serializeDescriptorString(os, name);
+        serializeTypeString(os);
     }
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
-    void serializeDescriptor(std::ostream& os, const char* const name)
+    void serializeType(std::ostream& os)
     {
-        serializeDescriptorBool(os, name);
+        serializeTypeBool(os);
     }
     
     /**
@@ -154,12 +171,16 @@ private:
         {
             // forward seperator serialization
             if (!firstDescriptor) {
-                serializeDescriptorSeperator(os);
+                serializeSeperator(os);
             } else {
                 firstDescriptor = false;
             }
 
-            serializeDescriptor<MemberT>(os, descriptor.getName());
+            // forward member name serialization
+            serializeName(os, descriptor.getName());
+
+            // forward serialization of type info
+            serializeType<MemberT>(os);
         }
     
 };

@@ -51,54 +51,54 @@ protected:
         os << "}";
     }
 
-    virtual void serializeMember(std::ostream& os, const char* const memberName, int value) override
-    {
-        os << "\"" << memberName << "\":" << value;
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, char value) override
-    {
-        os << "\"" << memberName << "\":" << value;
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, bool value) override
-    {
-        os << "\"" << memberName << "\":" << (value ? "true" : "false");
-    }
-
-    virtual void serializeMember(std::ostream& os, const char* const memberName, const char* const value) override
-    {
-        os << "\"" << memberName << "\":\"" << value << "\"";
-    }
-
-    virtual void serializeMemberSeperator(std::ostream& os) override
-    {
-        os << ",";
-    }
-
-    virtual void serializeDescriptorInnerClassName(std::ostream& os, const char* const name) override
+    virtual void serializeName(std::ostream& os, const char* const name) override
     {
         os << "\"" << name << "\":";
     }
 
-    virtual void serializeDescriptorChar(std::ostream& os, const char* const name) override
+    virtual void serializeSeperator(std::ostream& os) override
     {
-        os << "\"" << name << "\":\"CHAR\"";
+        os << ",";
     }
 
-    virtual void serializeDescriptorInt(std::ostream& os, const char* const name) override
+    virtual void serializeValue(std::ostream& os, const int& value) override
     {
-        os << "\"" << name << "\":\"INT\"";
+        os << value;
     }
 
-    virtual void serializeDescriptorString(std::ostream& os, const char* const name) override
+    virtual void serializeValue(std::ostream& os, const char& value) override
     {
-        os << "\"" << name << "\":\"STRING\"";
+        os << value;
     }
 
-    virtual void serializeDescriptorBool(std::ostream& os, const char* const name) override
+    virtual void serializeValue(std::ostream& os, const bool& value) override
     {
-        os << "\"" << name << "\":\"BOOLEAN\"";
+        os << (value ? "true" : "false");
+    }
+
+    virtual void serializeValue(std::ostream& os, const char* const value) override
+    {
+        os << "\"" << value << "\"";
+    }
+
+    virtual void serializeTypeChar(std::ostream& os) override
+    {
+        os << "\"CHAR\"";
+    }
+
+    virtual void serializeTypeInt(std::ostream& os) override
+    {
+        os << "\"INT\"";
+    }
+
+    virtual void serializeTypeString(std::ostream& os) override
+    {
+        os << "\"STRING\"";
+    }
+
+    virtual void serializeTypeBool(std::ostream& os) override
+    {
+        os << "\"BOOLEAN\"";
     }
 };
 } // Serialization

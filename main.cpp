@@ -18,12 +18,25 @@
 
 //--------------------------- STRUCTS AND ENUMS -------------------------------
 
+class InnerClass
+{
+public:
+    InnerClass() {}
+
+private:
+    int a;
+
+public:
+    static constexpr auto descriptors = std::make_tuple(
+        Serialization::MemberDescriptor(&InnerClass::a, "a")
+    );
+};
+
 class MyClass
 {
-    template <auto> struct DeduceType;
 public:
     MyClass(int a, char b, int c, const char* const d, bool e) :
-        a(a), b(b), c(c), d(d), e(e)
+        a(a), b(b), c(c), d(d), e(e), f()
     {
     }
 
@@ -33,6 +46,7 @@ private:
     int c;
     const char* const d;
     bool e;
+    InnerClass f;
 
 public:
     static constexpr auto descriptors = std::make_tuple(
@@ -41,6 +55,7 @@ public:
         Serialization::MemberDescriptor(&MyClass::c, "c"),
         Serialization::MemberDescriptor(&MyClass::d, "d"),
         Serialization::MemberDescriptor(&MyClass::e, "e")
+     //   Serialization::MemberDescriptor(&MyClass::f, "f")
     );
 };
 
