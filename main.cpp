@@ -73,21 +73,12 @@ public:
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-template <class... T>
-struct A{};
-
-template <class T>
-struct B{};
-
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
     MyClass mc2{4, '5', 6, "This is going well", false};
 
     Serialization::JSONSerializer s1;
-
-    Serialization::MemberFunctionDescriptor descFct(&MyClass::fct, "fct");
-    descFct.call(mc1, 1);
     
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;

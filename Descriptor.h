@@ -21,8 +21,6 @@ class Descriptor;
 
 //--------------------------------- INCLUDES ----------------------------------
 
-#include "MemberFunctionDescriptor.h"
-
 namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
