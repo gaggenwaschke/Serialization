@@ -12,7 +12,6 @@
 //--------------------------------- INCLUDES ----------------------------------
 
 #include "Descriptor.h"
-#include "MemberFunctionDescriptor.h"
 #include "SerializerJSON.h"
 #include <iostream>
 #include <tuple>
@@ -28,7 +27,8 @@ private:
     int a;
 
 public:
-    static constexpr auto descriptors = Serialization::Descriptor::make(
+    static constexpr auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "InnerClass",
         &InnerClass::a, "a"
     );
 };
@@ -56,7 +56,8 @@ public:
     }
 
 public:
-    static constexpr auto descriptors = Serialization::Descriptor::make(
+    static constexpr auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "MyClass",
         &MyClass::a, "a",
         &MyClass::b, "b",
         &MyClass::c, "c",
@@ -64,7 +65,6 @@ public:
         &MyClass::e, "e",
         &MyClass::f, "f"
     );
-    
 };
 
 //-------------------------------- CONSTANTS ----------------------------------
@@ -79,15 +79,17 @@ int main(int argc, char* argv[], char* env[])
     MyClass mc2{4, '5', 6, "This is going well", false};
 
     Serialization::JSONSerializer s1;
+
     
     s1.serialize(std::cout, mc1);
-    std::cout << std::endl;
-    s1.serialize(std::cout, mc2);
-    std::cout << std::endl;
-    s1.serializeStructure<MyClass>(std::cout);
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    //s1.serialize(std::cout, mc2);
+    //std::cout << std::endl;
+    //s1.serializeStructure<MyClass>(std::cout);
+    //std::cout << std::endl;
 
-    std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+    //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+    
 
     return 0;
 }

@@ -23,6 +23,15 @@
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+template <class... MemberDescriptorArgTs>
+constexpr auto Serialization::Descriptor::makeClassDescriptor(
+    const char* const name,
+    MemberDescriptorArgTs&&... memberDescriptorArgs
+)
+{
+    return ClassDescriptor(name, make(std::forward<MemberDescriptorArgTs>(memberDescriptorArgs)...));
+}
+
 /**
  * @brief Makes a tuple of descriptors.
  * 

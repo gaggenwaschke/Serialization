@@ -21,6 +21,8 @@ class Descriptor;
 
 //--------------------------------- INCLUDES ----------------------------------
 
+#include "ClassDescriptor.h"
+
 namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
@@ -37,6 +39,12 @@ class Descriptor
     Descriptor(const Descriptor& other) = delete;
     Descriptor& operator=(const Descriptor& other) = delete;
 public:
+    template <class... MemberDescriptorArgTs>
+    constexpr static auto makeClassDescriptor(
+        const char* const name,
+        MemberDescriptorArgTs&&... memberDescriptorArgs
+    );
+private:
     template<class SerializeableT, class MemberT>
     constexpr static auto make(MemberT SerializeableT::*member, const char* const name);
 

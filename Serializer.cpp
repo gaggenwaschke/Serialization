@@ -52,7 +52,7 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
     std::apply([&os, &object, this](const auto& ...descriptor){
         bool firstMember = true;
         (this->serializeMember(os, descriptor, object, firstMember), ...);
-    }, SerializeableT::descriptors);
+    }, SerializeableT::descriptor.memberDescriptors);
     serializeObjectEnd(os);
 }
 
@@ -97,7 +97,7 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
         (this->serializeDescriptor(os, descriptor, firstDescriptor), ...);
-    }, SerializeableT::descriptors);
+    }, SerializeableT::descriptors.memberDescriptors);
     serializeObjectEnd(os);
 }
 

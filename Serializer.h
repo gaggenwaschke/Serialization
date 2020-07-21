@@ -67,6 +67,7 @@ protected:
     virtual void serializeObjectStart(std::ostream& os) = 0;
     virtual void serializeObjectEnd(std::ostream& os) = 0;
     virtual void serializeName(std::ostream& os, const char* const name) = 0;
+    virtual void serializeClassName(std::ostream& os, const char* const name) {serializeName(os, name);}
     virtual void serializeSeperator(std::ostream& os) = 0;
 
     virtual void serializeValue(std::ostream& os, const int& value) = 0;
