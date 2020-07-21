@@ -44,6 +44,8 @@ class ClassDescriptor
     ClassDescriptor(const ClassDescriptor& other) = delete;
     ClassDescriptor& operator=(const ClassDescriptor& other) = delete;
 
+    constexpr const char* const getName() const;
+
 private:
     constexpr ClassDescriptor(const char* const name, std::tuple<MemberDescriptorTs...>&& memberDescriptorArgs);
 

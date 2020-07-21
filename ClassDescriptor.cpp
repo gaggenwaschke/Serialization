@@ -30,6 +30,12 @@ constexpr Serialization::ClassDescriptor<MemberDescriptorTs...>::
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+template <class... MemberDescriptorTs>
+constexpr const char* const Serialization::ClassDescriptor<MemberDescriptorTs...>::getName() const
+{
+    return name;
+}
+
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------
