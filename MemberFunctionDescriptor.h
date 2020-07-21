@@ -38,8 +38,7 @@ class MemberFunctionDescriptor
 {
     // delete default constructors
     MemberFunctionDescriptor() = delete;
-    MemberFunctionDescriptor(const MemberFunctionDescriptor& other) = delete;
-    MemberFunctionDescriptor& operator=(const MemberFunctionDescriptor& other) = delete;
+    
 public:
     using FunctionType = ReturnT (SerializeableT::*)(ArgTs...);
 
