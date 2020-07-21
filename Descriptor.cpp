@@ -57,10 +57,10 @@ constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, 
  * @param leftArgs arguements to create next descriptors from
  * @return constexpr auto tuple of descriptors
  */
-template<class SerializeableT, class MemberT, class... LeftArgsT>
-constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, const char* const name, LeftArgsT... leftArgs)
+template<class SerializeableT, class MemberT, class... LeftArgTs>
+constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, const char* const name, LeftArgTs&&... leftArgs)
 {
-    return std::tuple_cat(std::make_tuple(MemberDescriptor(member, name)), make(std::forward<LeftArgsT>(leftArgs)...));
+    return std::tuple_cat(std::make_tuple(MemberDescriptor(member, name)), make(std::forward<LeftArgTs>(leftArgs)...));
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------

@@ -21,6 +21,7 @@ class Descriptor;
 
 //--------------------------------- INCLUDES ----------------------------------
 
+#include "MemberFunctionDescriptor.h"
 
 namespace Serialization
 {
@@ -41,8 +42,8 @@ public:
     template<class SerializeableT, class MemberT>
     constexpr static auto make(MemberT SerializeableT::*member, const char* const name);
 
-    template<class SerializeableT, class MemberT, class... LeftArgsT>
-    constexpr static auto make(MemberT SerializeableT::*member, const char* const name, LeftArgsT... leftArgs);
+    template<class SerializeableT, class MemberT, class... LeftArgTs>
+    constexpr static auto make(MemberT SerializeableT::*member, const char* const name, LeftArgTs&&... leftArgs);
 };
 } // Serialization
 
