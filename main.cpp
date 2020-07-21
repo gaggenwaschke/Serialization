@@ -73,6 +73,12 @@ public:
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+struct A
+{
+    int a;
+    char b;
+};
+
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
@@ -80,13 +86,19 @@ int main(int argc, char* argv[], char* env[])
 
     Serialization::JSONSerializer s1;
 
+    auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "A",
+        &A::a, "a",
+        &A::b, "b"
+    );
+
     
     s1.serialize(std::cout, mc1);
-    //std::cout << std::endl;
-    //s1.serialize(std::cout, mc2);
-    //std::cout << std::endl;
-    //s1.serializeStructure<MyClass>(std::cout);
-    //std::cout << std::endl;
+    std::cout << std::endl;
+    s1.serialize(std::cout, mc2);
+    std::cout << std::endl;
+    s1.serializeStructure<MyClass>(std::cout);
+    std::cout << std::endl;
 
     //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
     

@@ -23,8 +23,8 @@
 
 template <class... MemberDescriptorTs>
 constexpr Serialization::ClassDescriptor<MemberDescriptorTs...>::
-    ClassDescriptor(const char* const name, MemberDescriptorTs&&... memberDescriptors) :
-    name(name), memberDescriptors(std::forward<MemberDescriptorTs>(memberDescriptors)...)
+    ClassDescriptor(const char* const name, std::tuple<MemberDescriptorTs...>&& memberDescriptors) :
+    name(name), memberDescriptors(memberDescriptors)
 {
 }
 

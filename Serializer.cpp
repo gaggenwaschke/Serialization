@@ -97,7 +97,7 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
         (this->serializeDescriptor(os, descriptor, firstDescriptor), ...);
-    }, SerializeableT::descriptors.memberDescriptors);
+    }, SerializeableT::descriptor.memberDescriptors);
     serializeObjectEnd(os);
 }
 
