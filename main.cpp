@@ -12,6 +12,7 @@
 //--------------------------------- INCLUDES ----------------------------------
 
 #include "MemberDescriptor.h"
+#include "Descriptor.h"
 #include "SerializerJSON.h"
 #include <iostream>
 #include <tuple>
@@ -27,8 +28,8 @@ private:
     int a;
 
 public:
-    static constexpr auto descriptors = std::make_tuple(
-        Serialization::MemberDescriptor(&InnerClass::a, "a")
+    static constexpr auto descriptors = Serialization::Descriptor::make(
+        &InnerClass::a, "a"
     );
 };
 
@@ -49,14 +50,15 @@ private:
     InnerClass f;
 
 public:
-    static constexpr auto descriptors = std::make_tuple(
-        Serialization::MemberDescriptor(&MyClass::a, "a"),
-        Serialization::MemberDescriptor(&MyClass::b, "b"),
-        Serialization::MemberDescriptor(&MyClass::c, "c"),
-        Serialization::MemberDescriptor(&MyClass::d, "d"),
-        Serialization::MemberDescriptor(&MyClass::e, "e"),
-        Serialization::MemberDescriptor(&MyClass::f, "f")
+    static constexpr auto descriptors = Serialization::Descriptor::make(
+        &MyClass::a, "a",
+        &MyClass::b, "b",
+        &MyClass::c, "c",
+        &MyClass::d, "d",
+        &MyClass::e, "e",
+        &MyClass::f, "f"
     );
+    
 };
 
 //-------------------------------- CONSTANTS ----------------------------------
@@ -65,19 +67,13 @@ public:
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-template <class SerializeableT, class MemberT>
-void print(const Serialization::MemberDescriptor<SerializeableT, MemberT>& descriptor, SerializeableT& object)
-{
-    std::cout << descriptor.getName() << "(" << typeid(MemberT).name() << "): " << descriptor.getMemberValue(object) << std::endl;
-}
-
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
     MyClass mc2{4, '5', 6, "This is going well", false};
 
     Serialization::JSONSerializer s1;
-
+    
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;
     s1.serialize(std::cout, mc2);
@@ -85,8 +81,7 @@ int main(int argc, char* argv[], char* env[])
     s1.serializeStructure<MyClass>(std::cout);
     std::cout << std::endl;
 
-    //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
-    // print name value pairs
+    std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
 
     return 0;
 }

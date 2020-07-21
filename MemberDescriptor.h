@@ -39,10 +39,6 @@ class MemberDescriptor
     // delete default constructors
     MemberDescriptor() = delete;
 
-private:
-    /** used to deduce a member pointers unnderlaying type */
-    template <auto> struct DeduceType;
-
 public:
     constexpr MemberDescriptor(const MemberT SerializeableT::*member, const char* const name);    
 
