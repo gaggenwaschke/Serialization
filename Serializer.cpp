@@ -94,8 +94,10 @@ template <class SerializeableT>
 void Serialization::Serializer::serializeStructure(std::ostream& os)
 {
     serializeObjectStart(os);
-    serializeClassName(os, SerializeableT::descriptor.getName());
+    serializeName(os, getClassNameFieldName());
+    serializeValue(os, SerializeableT::descriptor.getName());
     serializeSeperator(os);
+    serializeName(os, getMembersFieldName());
     serializeObjectStart(os);
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;

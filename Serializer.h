@@ -67,7 +67,6 @@ protected:
     virtual void serializeObjectStart(std::ostream& os) = 0;
     virtual void serializeObjectEnd(std::ostream& os) = 0;
     virtual void serializeName(std::ostream& os, const char* const name) = 0;
-    virtual void serializeClassName(std::ostream& os, const char* const name) = 0;
     virtual void serializeSeperator(std::ostream& os) = 0;
 
     virtual void serializeValue(std::ostream& os, const int& value) = 0;
@@ -79,6 +78,9 @@ protected:
     virtual void serializeTypeChar(std::ostream& os) = 0;
     virtual void serializeTypeBool(std::ostream& os) = 0;
     virtual void serializeTypeString(std::ostream& os) = 0;
+
+    virtual const char* const getClassNameFieldName() { return nullptr; }
+    virtual const char* const getMembersFieldName() { return nullptr; }
 
 private:
     template <class SerializeableT, class MemberT>

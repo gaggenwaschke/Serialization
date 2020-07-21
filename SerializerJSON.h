@@ -56,11 +56,6 @@ protected:
         os << "\"" << name << "\":";
     }
 
-    virtual void serializeClassName(std::ostream& os, const char* const name) override
-    {
-        os << "\"className\":\"" << name << "\"";
-    }
-
     virtual void serializeSeperator(std::ostream& os) override
     {
         os << ",";
@@ -104,6 +99,16 @@ protected:
     virtual void serializeTypeBool(std::ostream& os) override
     {
         os << "\"BOOLEAN\"";
+    }
+
+    virtual const char* const getClassNameFieldName() override 
+    {
+        return "ClassName";
+    }
+
+    virtual const char* const getMembersFieldName() override
+    {
+        return "Members";
     }
 };
 } // Serialization
