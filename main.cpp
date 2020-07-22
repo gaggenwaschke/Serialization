@@ -92,7 +92,6 @@ int main(int argc, char* argv[], char* env[])
         &A::b, "b"
     );
 
-    
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;
     s1.serialize(std::cout, mc2);

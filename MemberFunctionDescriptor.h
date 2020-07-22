@@ -36,18 +36,22 @@ namespace Serialization
 template<class SerializeableT, class ReturnT, class... ArgTs>
 class MemberFunctionDescriptor
 {
+    friend class Descriptor;
+
     // delete default constructors
     MemberFunctionDescriptor() = delete;
     
 public:
     using FunctionType = ReturnT (SerializeableT::*)(ArgTs...);
 
+private:
+    constexpr MemberFunctionDescriptor(const MemberFunctionDescriptor& other) = default;
+    constexpr MemberFunctionDescriptor& operator=(const MemberFunctionDescriptor& other) = default;
     constexpr MemberFunctionDescriptor(const FunctionType function, const char* const name);
     
     constexpr ReturnT call(SerializeableT& object, ArgTs... arguments) const;
     constexpr const char* const getName() const;
 
-private:
     /** member function pointer */
     const FunctionType function;
     /** name of the function */
