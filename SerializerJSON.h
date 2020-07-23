@@ -21,8 +21,6 @@ class JSONSerializer;
 
 //--------------------------------- INCLUDES ----------------------------------
 
-#include "Serializer.h"
-
 namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
@@ -32,103 +30,53 @@ namespace Serialization
 /**
  * @brief automatic json serializer
  */
-class JSONSerializer : public Serializer
+class JSONSerializer
 {
+    template <class T>
+    friend class Serialization::Serializer;
+
     // delete default constructors
+    JSONSerializer() = delete;
     JSONSerializer(const JSONSerializer& other) = delete;
     JSONSerializer& operator=(const JSONSerializer& other) = delete;
-public:
-    JSONSerializer(){}
 
-protected:
-    virtual void serializeObjectStart(std::ostream& os) override
-    {
-        os << "{";
-    }
+private:
+    constexpr const char* const ObjectStart = "{";
+    constexpr const char* const ObjectEnd = "}";
+    constexpr const char* const ArrayStart = "[";
+    constexpr const char* const ArrayEnd = "]";
+    constexpr const char* const BeforeName = "\"";
+    constexpr const char* const AfterName = "\":";
+    constexpr const char* const Seperator = ",";
 
-    virtual void serializeObjectEnd(std::ostream& os) override
-    {
-        os << "}";
-    }
+    constexpr const char* const TypeChar = "\"CHAR\"";
+    constexpr const char* const TypeInt = "\"INT\"";
+    constexpr const char* const TypeString = "\"STRING\"";
+    constexpr const char* const TypeBool = "\"BOOL\"";
 
-    virtual void serializeArrayStart(std::ostream& os) override
-    {
-        os << "[";
-    }
-    
-    virtual void serializeArrayEnd(std::ostream& os) override
-    {
-        os << "]";
-    }
+    constexpr const char* const FieldNameClass = "ClassName";
+    constexpr const char* const FieldNameMembers = "Members";
+    constexpr const char* const FieldNameFunctions = "Functions";
+    constexpr const char* const FieldNameArguments = "Arguments";
 
-    virtual void serializeName(std::ostream& os, const char* const name) override
-    {
-        os << "\"" << name << "\":";
-    }
-
-    virtual void serializeSeperator(std::ostream& os) override
-    {
-        os << ",";
-    }
-
-    virtual void serializeValue(std::ostream& os, const int& value) override
+    void serializeValue(std::ostream& os, const int& value)
     {
         os << value;
     }
 
-    virtual void serializeValue(std::ostream& os, const char& value) override
+    void serializeValue(std::ostream& os, const char& value)
     {
         os << value;
     }
 
-    virtual void serializeValue(std::ostream& os, const bool& value) override
+    void serializeValue(std::ostream& os, const bool& value)
     {
         os << (value ? "true" : "false");
     }
 
-    virtual void serializeValue(std::ostream& os, const char* const value) override
+    void serializeValue(std::ostream& os, const char* const value)
     {
         os << "\"" << value << "\"";
-    }
-
-    virtual void serializeTypeChar(std::ostream& os) override
-    {
-        os << "\"CHAR\"";
-    }
-
-    virtual void serializeTypeInt(std::ostream& os) override
-    {
-        os << "\"INT\"";
-    }
-
-    virtual void serializeTypeString(std::ostream& os) override
-    {
-        os << "\"STRING\"";
-    }
-
-    virtual void serializeTypeBool(std::ostream& os) override
-    {
-        os << "\"BOOLEAN\"";
-    }
-
-    virtual const char* const getClassNameFieldName() override 
-    {
-        return "ClassName";
-    }
-
-    virtual const char* const getMembersFieldName() override
-    {
-        return "Members";
-    }
-
-    virtual const char* const getFunctionsFieldName() override
-    {
-        return "Functions";
-    }
-
-    virtual const char* const getFunctionArgumentsFieldName() override
-    {
-        return "Arguments";
     }
 };
 } // Serialization

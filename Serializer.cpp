@@ -22,11 +22,6 @@
 
 //------------------------------ CONSTRUCTOR ----------------------------------
 
-Serialization::Serializer::Serializer()
-{
-    // do nothing
-}
-
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
 /**
@@ -40,6 +35,7 @@ Serialization::Serializer::Serializer()
  * @param os out stream to write to
  * @param object object to serialize
  */
+template <class Supplier>
 template <class SerializeableT,
         typename std::enable_if_t<
             !(std::is_same_v<char, SerializeableT> ||
@@ -48,12 +44,12 @@ template <class SerializeableT,
             std::is_same_v<bool, SerializeableT>), int>  = 0>
 void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT& object)
 {
-    serializeObjectStart(os);
+    os << Supplier::getObjectStart();
     std::apply([&os, &object, this](const auto& ...descriptor){
         bool firstMember = true;
         (this->serializeMember(os, descriptor, object, firstMember), ...);
     }, SerializeableT::descriptor.memberDescriptors);
-    serializeObjectEnd(os);
+    os << Supplier::getObjectEnd();
 }
 
 /**
@@ -67,6 +63,7 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
  * @param os out stream to write to
  * @param object object to serialize
  */
+template <class Supplier>
 template <class SerializeableT,
     typename std::enable_if_t<
     (
@@ -77,7 +74,7 @@ template <class SerializeableT,
     ), int>  = 0>
 void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT& value)
 {
-    serializeValue(os, value);
+    Supplier::serializeValue(os, value);
 }
 
 /**
@@ -90,35 +87,34 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
  * @tparam SerializeableT type to write descriptor of
  * @param os stream to write the descriptor to
  */
+template <class Supplier>
 template <class SerializeableT>
 void Serialization::Serializer::serializeStructure(std::ostream& os)
 {
-    serializeObjectStart(os);
+    os << Supplier::ObjectStart;
 
     // serialize name
-    serializeName(os, getClassNameFieldName());
-    serializeValue(os, SerializeableT::descriptor.getName());
-    serializeSeperator(os);
+    os << Supplier::BeforeName << Supplier::FieldNameClass << Supplier::AfterName;
+    Supplier::serializeValue(os, SerializeableT::descriptor.getName());
+    os << Supplier::Seperator;
 
     // serialize members
-    serializeName(os, getMembersFieldName());
-    serializeObjectStart(os);
+    os << Supplier::BeforeName << Supplier::FieldNameMembers << Supplier::AfterName;
+    os << Supplier::ObjectStart;
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
         (this->serializeMemberDescriptors(os, descriptor, firstDescriptor), ...);
     }, SerializeableT::descriptor.memberDescriptors);
-    serializeObjectEnd(os);
-    serializeSeperator(os);
+    os << Supplier::ObjectEnd << Supplier::Seperator;
 
     // serialize functions
-    serializeName(os, getFunctionsFieldName());
-    serializeObjectStart(os);
+    os << Supplier::BeforeName << Suppplier::FieldNameFunctions << Supplier::AfterName;
+    os << Supplier::ObjectStart;
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
         (this->serializeFunctionDescriptors(os, descriptor, firstDescriptor), ...);
     }, SerializeableT::descriptor.memberDescriptors);
-    serializeObjectEnd(os);
-    serializeObjectEnd(os);
+    os << Supplier::ObjectEnd << Supplier::ObjectEnd;
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------
@@ -135,6 +131,7 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
  * @param object 
  * @param firstMember 
  */
+template <class Supplier>
 template <class SerializeableT, class MemberT>
 void Serialization::Serializer::serializeMember(
     std::ostream& os,
@@ -149,7 +146,7 @@ void Serialization::Serializer::serializeMember(
         firstMember = false;
     }
 
-    serializeName(os, descriptor.getName());
+    os << Supplier::BeforeName << descriptor.getName() << Supplier::AfterName;
     // forward to virtual functions for value output
     serialize(os, descriptor.getMemberValue(object));
 }
@@ -183,6 +180,7 @@ void Serialization::Serializer::serializeMember(
  * @tparam MemberT serializeable type.
  * @param os stream to serialize to
  */
+template <class Supplier>
 template <class MemberT,
     typename std::enable_if_t<
         !std::is_same_v<char, MemberT> &&
@@ -200,6 +198,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @tparam MemberT char
  * @param os out stream
  */
+template <class Supplier>
 template <class MemberT,
     typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
@@ -213,6 +212,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @tparam MemberT int
  * @param os out stream
  */
+template <class Supplier>
 template <class MemberT,
     typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
@@ -226,6 +226,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @tparam MemberT string
  * @param os out stream
  */
+template <class Supplier>
 template <class MemberT,
     typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
@@ -239,6 +240,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @tparam MemberT bool
  * @param os out stream
  */
+template <class Supplier>
 template <class MemberT,
     typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
@@ -254,6 +256,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @param os 
  * @param descriptor 
  */
+template <class Supplier>
 template <class SerializeableT, class MemberT>
 void Serialization::Serializer::serializeMemberDescriptors(
     std::ostream& os,
@@ -268,7 +271,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
     }
 
     // forward member name serialization
-    serializeName(os, descriptor.getName());
+    os << Supplier::getBeforeName() << descriptor.getName() << Supplier::getAfterName();
 
     // forward serialization of type info
     serializeType<MemberT>(os);
@@ -284,6 +287,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
  * @param descriptor 
  * @param firstDescriptor 
  */
+template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
 void Serialization::Serializer::serializeMemberDescriptors(
     std::ostream& os,
@@ -302,6 +306,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
  * @param descriptor 
  * @param firstDescriptor 
  */
+template <class Supplier>
 template <class SerializeableT, class MemberT>
 void Serialization::Serializer::serializeFunctionDescriptors(
     std::ostream& os,
@@ -322,6 +327,7 @@ void Serialization::Serializer::serializeFunctionDescriptors(
  * @param descriptor 
  * @param firstDescriptor 
  */
+template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
 void Serialization::Serializer::serializeFunctionDescriptors(
     std::ostream& os,
@@ -336,19 +342,20 @@ void Serialization::Serializer::serializeFunctionDescriptors(
     }
 
     // forward member name serialization
-    serializeName(os, descriptor.getName());
+    os << Supplier::getBeforeName() << descriptor.getName() << Supplier::getAfterName();
 
     // serialize arguments
-    serializeName(os, getFunctionArgumentsFieldName());
-    serializeObjectStart(os);
+    os << Supplier::getBeforeName() << getFunctionArgumentsFieldName() << Supplier::getAfterName();
+    os << Supplier::getObjectStart();
 
     int ii = 0;
     bool firstElement = true;
     (serializeFunctionArgument<ArgTs>(os, descriptor.getArgumentName(ii++), firstElement), ...);
 
-    serializeObjectEnd(os);
+    os << Supplier::getObjectEnd();
 }
 
+template <class Supplier>
 template <class ArgT>
 void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement)
 {
@@ -359,7 +366,7 @@ void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, cons
         firstElement = false;
     }
 
-    serializeName(os, name);
+    os << Supplier::getBeforeName() << name << Supplier::getAfterName();
     serializeType<ArgT>(os);
 }
 

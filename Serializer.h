@@ -16,6 +16,7 @@
 
 namespace Serialization
 {
+template <class Supplier>
 class Serializer;
 }
 
@@ -34,10 +35,11 @@ namespace Serialization
 /**
  * @brief generic serializer for C++ classes
  */
+template <class Supplier>
 class Serializer
 {
     // delete default constructors
-    //Serializer() = delete;
+    Serializer() = delete;
     Serializer(const Serializer& other) = delete;
     Serializer& operator=(const Serializer& other) = delete;
 public:
@@ -47,7 +49,7 @@ public:
             std::is_same_v<int, SerializeableT> ||
             std::is_same_v<const char*, SerializeableT> ||
             std::is_same_v<bool, SerializeableT>), int>  = 0>
-    void serialize(std::ostream& os, const SerializeableT& object);
+    static void serialize(std::ostream& os, const SerializeableT& object);
 
     template <class SerializeableT,
         typename std::enable_if_t<
@@ -57,47 +59,22 @@ public:
             std::is_same_v<const char*, SerializeableT> ||
             std::is_same_v<bool, SerializeableT>
         ), int>  = 0>
-    void serialize(std::ostream& os, const SerializeableT& value);
+    static void serialize(std::ostream& os, const SerializeableT& value);
 
 
     template <class SerialzeableT>
-    void serializeStructure(std::ostream& os);
-
-protected:
-    Serializer();
-
-    virtual void serializeObjectStart(std::ostream& os) = 0;
-    virtual void serializeObjectEnd(std::ostream& os) = 0;
-    virtual void serializeArrayStart(std::ostream& os) = 0;
-    virtual void serializeArrayEnd(std::ostream& os) = 0;
-    virtual void serializeName(std::ostream& os, const char* const name) = 0;
-    virtual void serializeSeperator(std::ostream& os) = 0;
-
-    virtual void serializeValue(std::ostream& os, const int& value) = 0;
-    virtual void serializeValue(std::ostream& os, const char& value) = 0;
-    virtual void serializeValue(std::ostream& os, const bool& value) = 0;
-    virtual void serializeValue(std::ostream& os, const char* const value) = 0;
-
-    virtual void serializeTypeInt(std::ostream& os) = 0;
-    virtual void serializeTypeChar(std::ostream& os) = 0;
-    virtual void serializeTypeBool(std::ostream& os) = 0;
-    virtual void serializeTypeString(std::ostream& os) = 0;
-
-    virtual const char* const getClassNameFieldName() { return nullptr; }
-    virtual const char* const getMembersFieldName() { return nullptr; }
-    virtual const char* const getFunctionsFieldName() { return nullptr; }
-    virtual const char* const getFunctionArgumentsFieldName() { return nullptr; }
+    static void serializeStructure(std::ostream& os);
 
 private:
     template <class SerializeableT, class MemberT>
-    void serializeMember(
+    static void serializeMember(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         const SerializeableT& object,
         bool& firstMember);
 
     template <class SerializeableT, class ReturnT, class... ArgTs>
-    void serializeMember(
+    static void serializeMember(
         std::ostream& os,
         const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         const SerializeableT& object,
@@ -109,50 +86,50 @@ private:
             !std::is_same_v<int, MemberT> &&
             !std::is_same_v<const char*, MemberT> &&
             !std::is_same_v<bool, MemberT>, int>  = 0>
-    void serializeType(std::ostream& os);
+    static void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
-    void serializeType(std::ostream& os);
+    static void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
-    void serializeType(std::ostream& os);
+    static void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
-    void serializeType(std::ostream& os);
+    static void serializeType(std::ostream& os);
 
     template <class MemberT,
         typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
-    void serializeType(std::ostream& os);
+    static void serializeType(std::ostream& os);
 
     template <class SerializeableT, class MemberT>
-    void serializeMemberDescriptors(
+    static void serializeMemberDescriptors(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         bool& firstDescriptor);
 
     template <class SerializeableT, class ReturnT, class... ArgTs>
-    void serializeMemberDescriptors(
+    static void serializeMemberDescriptors(
         std::ostream& os,
         const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         bool& firstDescriptor);
 
     template <class SerializeableT, class MemberT>
-    void serializeFunctionDescriptors(
+    static void serializeFunctionDescriptors(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         bool& firstDescriptor);
 
     template <class SerializeableT, class ReturnT, class... ArgTs>
-    void serializeFunctionDescriptors(
+    static void serializeFunctionDescriptors(
         std::ostream& os,
         const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         bool& firstDescriptor);
 
     template <class ArgT>
-    void serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement);
+    static void serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement);
 };
 } // Serial
 
