@@ -93,7 +93,9 @@ constexpr auto Serialization::Descriptor::make(
     LeftArgTs&&... leftArgs)
 {
     return std::tuple_cat(
-        MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>(function, name, std::move(argumentNames)),
+        std::make_tuple(
+            MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>(function, name, std::move(argumentNames))
+        ),
         make(std::forward<LeftArgTs>(leftArgs)...)
     );
 }

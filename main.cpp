@@ -55,6 +55,11 @@ public:
         return a;
     }
 
+    char fct2(int a, char b) {
+        std::cout << "Hello from fct 2" << std::endl;
+        return b;
+    }
+
 public:
     static constexpr auto descriptor = Serialization::Descriptor::makeClassDescriptor(
         "MyClass",
@@ -64,7 +69,8 @@ public:
         &MyClass::d, "d",
         &MyClass::e, "e",
         &MyClass::f, "f",
-        &MyClass::fct, "fct", std::array<const char* const, 1>({"a"})
+        &MyClass::fct, "fct", std::array<const char* const, 1>({"a"}),
+        &MyClass::fct2, "fct2", std::array<const char* const, 2> ({"a", "b"})
     );
 };
 
@@ -74,12 +80,6 @@ public:
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
-struct A
-{
-    int a;
-    char b;
-};
-
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
@@ -87,25 +87,12 @@ int main(int argc, char* argv[], char* env[])
 
     Serialization::JSONSerializer s1;
 
-    auto descriptor = Serialization::Descriptor::makeClassDescriptor(
-        "A",
-        &A::a, "a",
-        &A::b, "b"
-    );
-
-    auto descriptor2 = Serialization::MemberFunctionDescriptor(&MyClass::fct, "fct", std::array<const char* const, 1>({"a"}));
-    descriptor2.call(mc1, 1);
-
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;
     s1.serialize(std::cout, mc2);
     std::cout << std::endl;
     s1.serializeStructure<MyClass>(std::cout);
     std::cout << std::endl;
-
-
-    //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
-    
 
     return 0;
 }
