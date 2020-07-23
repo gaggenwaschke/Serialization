@@ -41,42 +41,48 @@ class JSONSerializer
     JSONSerializer& operator=(const JSONSerializer& other) = delete;
 
 private:
-    constexpr const char* const ObjectStart = "{";
-    constexpr const char* const ObjectEnd = "}";
-    constexpr const char* const ArrayStart = "[";
-    constexpr const char* const ArrayEnd = "]";
-    constexpr const char* const BeforeName = "\"";
-    constexpr const char* const AfterName = "\":";
-    constexpr const char* const Seperator = ",";
+    static constexpr const char* const ObjectStart = "{";
+    static constexpr const char* const ObjectEnd = "}";
+    static constexpr const char* const ArrayStart = "[";
+    static constexpr const char* const ArrayEnd = "]";
+    static constexpr const char* const BeforeName = "\"";
+    static constexpr const char* const AfterName = "\":";
+    static constexpr const char* const Seperator = ",";
 
-    constexpr const char* const TypeChar = "\"CHAR\"";
-    constexpr const char* const TypeInt = "\"INT\"";
-    constexpr const char* const TypeString = "\"STRING\"";
-    constexpr const char* const TypeBool = "\"BOOL\"";
+    static constexpr const char* const TypeChar = "\"CHAR\"";
+    static constexpr const char* const TypeInt = "\"INT\"";
+    static constexpr const char* const TypeString = "\"STRING\"";
+    static constexpr const char* const TypeBool = "\"BOOL\"";
 
-    constexpr const char* const FieldNameClass = "ClassName";
-    constexpr const char* const FieldNameMembers = "Members";
-    constexpr const char* const FieldNameFunctions = "Functions";
-    constexpr const char* const FieldNameArguments = "Arguments";
+    static constexpr const char* const FieldNameClass = "ClassName";
+    static constexpr const char* const FieldNameMembers = "Members";
+    static constexpr const char* const FieldNameFunctions = "Functions";
+    static constexpr const char* const FieldNameArguments = "Arguments";
 
-    void serializeValue(std::ostream& os, const int& value)
+    static void serializeValue(std::ostream& os, const int& value)
     {
         os << value;
     }
 
-    void serializeValue(std::ostream& os, const char& value)
+    static void serializeValue(std::ostream& os, const char& value)
     {
         os << value;
     }
 
-    void serializeValue(std::ostream& os, const bool& value)
+    static void serializeValue(std::ostream& os, const bool& value)
     {
         os << (value ? "true" : "false");
     }
 
-    void serializeValue(std::ostream& os, const char* const value)
+    static void serializeValue(std::ostream& os, const char* const value)
     {
         os << "\"" << value << "\"";
+    }
+
+    template <class T>
+    static constexpr const char* const getTypeName()
+    {
+        return "\"unknown\"";
     }
 };
 } // Serialization

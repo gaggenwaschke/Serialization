@@ -111,13 +111,13 @@ private:
         bool& firstDescriptor);
 
     template <class SerializeableT, class ReturnT, class... ArgTs>
-    static void serializeMemberDescriptors(
+    constexpr static void serializeMemberDescriptors(
         std::ostream& os,
         const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         bool& firstDescriptor);
 
     template <class SerializeableT, class MemberT>
-    static void serializeFunctionDescriptors(
+    constexpr static void serializeFunctionDescriptors(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         bool& firstDescriptor);

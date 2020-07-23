@@ -203,7 +203,7 @@ template <class MemberT,
     typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
 {
-    serializeTypeChar(os);
+    os << Supplier::TypeChar;
 }
 
 /**
@@ -217,7 +217,7 @@ template <class MemberT,
     typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
 {
-    serializeTypeInt(os);
+    os << Supplier::TypeInt;
 }
 
 /**
@@ -231,7 +231,7 @@ template <class MemberT,
     typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
 {
-    serializeTypeString(os);
+    os << Supplier::TypeString;
 }
 
 /**
@@ -245,7 +245,7 @@ template <class MemberT,
     typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
 void Serialization::Serializer::serializeType(std::ostream& os)
 {
-    serializeTypeBool(os);
+    os << Supplier::TypeBool;
 }
 
 /**
@@ -265,13 +265,13 @@ void Serialization::Serializer::serializeMemberDescriptors(
 {
     // forward seperator serialization
     if (!firstDescriptor) {
-        serializeSeperator(os);
+        os << Supplier::Seperator;
     } else {
         firstDescriptor = false;
     }
 
     // forward member name serialization
-    os << Supplier::getBeforeName() << descriptor.getName() << Supplier::getAfterName();
+    os << Supplier::BeforeName << descriptor.getName() << Supplier::AfterName;
 
     // forward serialization of type info
     serializeType<MemberT>(os);
@@ -289,7 +289,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
  */
 template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
-void Serialization::Serializer::serializeMemberDescriptors(
+constexpr void Serialization::Serializer::serializeMemberDescriptors(
     std::ostream& os,
     const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
     bool& firstDescriptor)
@@ -308,7 +308,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
  */
 template <class Supplier>
 template <class SerializeableT, class MemberT>
-void Serialization::Serializer::serializeFunctionDescriptors(
+constexpr void Serialization::Serializer::serializeFunctionDescriptors(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
     bool& firstDescriptor)
@@ -336,23 +336,22 @@ void Serialization::Serializer::serializeFunctionDescriptors(
 {
     // forward seperator serialization
     if (!firstDescriptor) {
-        serializeSeperator(os);
+        os << Supplier::Seperator;
     } else {
         firstDescriptor = false;
     }
 
     // forward member name serialization
-    os << Supplier::getBeforeName() << descriptor.getName() << Supplier::getAfterName();
+    os << Supplier::BeforeName << descriptor.getName() << Supplier::AfterName;
 
     // serialize arguments
-    os << Supplier::getBeforeName() << getFunctionArgumentsFieldName() << Supplier::getAfterName();
-    os << Supplier::getObjectStart();
+    os << Supplier::BeforeName << getFunctionArgumentsFieldName() << Supplier::AfterName << Supplier::ObjectStart;
 
     int ii = 0;
     bool firstElement = true;
     (serializeFunctionArgument<ArgTs>(os, descriptor.getArgumentName(ii++), firstElement), ...);
 
-    os << Supplier::getObjectEnd();
+    os << Supplier::ObjectEnd;
 }
 
 template <class Supplier>
@@ -361,12 +360,12 @@ void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, cons
 {
     // forward seperator serialization
     if (!firstElement) {
-        serializeSeperator(os);
+        os << Supplier::Seperator;
     } else {
         firstElement = false;
     }
 
-    os << Supplier::getBeforeName() << name << Supplier::getAfterName();
+    os << Supplier::BeforeName << name << Supplier::AfterName;
     serializeType<ArgT>(os);
 }
 
