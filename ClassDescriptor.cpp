@@ -36,6 +36,12 @@ constexpr const char* const Serialization::ClassDescriptor<MemberDescriptorTs...
     return name;
 }
 
+template <class... MemberDescriptorTs>
+constexpr const std::tuple<MemberDescriptorTs...>& Serialization::ClassDescriptor<MemberDescriptorTs...>::getMemberDescriptors() const
+{
+    return memberDescriptors;
+}
+
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------

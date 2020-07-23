@@ -37,14 +37,15 @@ template<class... MemberDescriptorTs>
 class ClassDescriptor
 {
     friend class Descriptor;
-    friend class Serializer;
 
     // delete default constructors
     ClassDescriptor() = delete;
     ClassDescriptor(const ClassDescriptor& other) = delete;
     ClassDescriptor& operator=(const ClassDescriptor& other) = delete;
 
+public:
     constexpr const char* const getName() const;
+    constexpr const std::tuple<MemberDescriptorTs...>& getMemberDescriptors() const;
 
 private:
     constexpr ClassDescriptor(const char* const name, std::tuple<MemberDescriptorTs...>&& memberDescriptorArgs);

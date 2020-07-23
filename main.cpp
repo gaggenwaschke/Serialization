@@ -88,11 +88,11 @@ int main(int argc, char* argv[], char* env[])
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
     MyClass mc2{4, '5', 6, "This is going well", false};
 
-    Serialization::Serializer<Serialization::JSON>::serialize(std::cout, mc1);
+    Serialization::Serializer<Serialization::JSONSerializer>::serialize(std::cout, mc1);
     std::cout << std::endl;
-    Serialization::Serializer<Serialization::JSON>::serialize(std::cout, mc2);
+    Serialization::Serializer<Serialization::JSONSerializer>::serialize(std::cout, mc2);
     std::cout << std::endl;
-    Serialization::Serializer<Serialization::JSON>::serializeStructure<MyClass>(std::cout);
+    Serialization::Serializer<Serialization::JSONSerializer>::serializeStructure<MyClass>(std::cout);
     std::cout << std::endl;
 
     // test time
@@ -102,7 +102,7 @@ int main(int argc, char* argv[], char* env[])
     myfile << "{";
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (size_t ii = 0; ii < count; ++ii) {
-        Serialization::Serializer<Serialization::JSON>::serialize(myfile, mc1);
+        Serialization::Serializer<Serialization::JSONSerializer>::serialize(myfile, mc1);
         if (ii < (count -1))
         {
            myfile << ",";

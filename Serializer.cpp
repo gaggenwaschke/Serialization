@@ -41,15 +41,15 @@ template <class SerializeableT,
             !(std::is_same_v<char, SerializeableT> ||
             std::is_same_v<int, SerializeableT> ||
             std::is_same_v<const char*, SerializeableT> ||
-            std::is_same_v<bool, SerializeableT>), int>  = 0>
-void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT& object)
+            std::is_same_v<bool, SerializeableT>), int> Dummy>
+void Serialization::Serializer<Supplier>::serialize(std::ostream& os, const SerializeableT& object)
 {
-    os << Supplier::getObjectStart();
-    std::apply([&os, &object, this](const auto& ...descriptor){
+    os << Supplier::ObjectStart;
+    std::apply([&os, &object](const auto& ...descriptor){
         bool firstMember = true;
-        (this->serializeMember(os, descriptor, object, firstMember), ...);
-    }, SerializeableT::descriptor.memberDescriptors);
-    os << Supplier::getObjectEnd();
+        (serializeMember(os, descriptor, object, firstMember), ...);
+    }, SerializeableT::descriptor.getMemberDescriptors());
+    os << Supplier::ObjectEnd;
 }
 
 /**
@@ -71,8 +71,8 @@ template <class SerializeableT,
         std::is_same_v<int, SerializeableT> ||
         std::is_same_v<const char*, SerializeableT> ||
         std::is_same_v<bool, SerializeableT>
-    ), int>  = 0>
-void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT& value)
+    ), int>>
+void Serialization::Serializer<Supplier>::serialize(std::ostream& os, const SerializeableT& value)
 {
     Supplier::serializeValue(os, value);
 }
@@ -89,7 +89,7 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
  */
 template <class Supplier>
 template <class SerializeableT>
-void Serialization::Serializer::serializeStructure(std::ostream& os)
+void Serialization::Serializer<Supplier>::serializeStructure(std::ostream& os)
 {
     os << Supplier::ObjectStart;
 
@@ -101,19 +101,19 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
     // serialize members
     os << Supplier::BeforeName << Supplier::FieldNameMembers << Supplier::AfterName;
     os << Supplier::ObjectStart;
-    std::apply([&os, this](const auto& ...descriptor){
+    std::apply([&os](const auto& ...descriptor){
         bool firstDescriptor = true;
-        (this->serializeMemberDescriptors(os, descriptor, firstDescriptor), ...);
-    }, SerializeableT::descriptor.memberDescriptors);
+        (serializeMemberDescriptors(os, descriptor, firstDescriptor), ...);
+    }, SerializeableT::descriptor.getMemberDescriptors());
     os << Supplier::ObjectEnd << Supplier::Seperator;
 
     // serialize functions
-    os << Supplier::BeforeName << Suppplier::FieldNameFunctions << Supplier::AfterName;
+    os << Supplier::BeforeName << Supplier::FieldNameFunctions << Supplier::AfterName;
     os << Supplier::ObjectStart;
-    std::apply([&os, this](const auto& ...descriptor){
+    std::apply([&os](const auto& ...descriptor){
         bool firstDescriptor = true;
-        (this->serializeFunctionDescriptors(os, descriptor, firstDescriptor), ...);
-    }, SerializeableT::descriptor.memberDescriptors);
+        (serializeFunctionDescriptors(os, descriptor, firstDescriptor), ...);
+    }, SerializeableT::descriptor.getMemberDescriptors());
     os << Supplier::ObjectEnd << Supplier::ObjectEnd;
 }
 
@@ -133,7 +133,7 @@ void Serialization::Serializer::serializeStructure(std::ostream& os)
  */
 template <class Supplier>
 template <class SerializeableT, class MemberT>
-void Serialization::Serializer::serializeMember(
+void Serialization::Serializer<Supplier>::serializeMember(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
     const SerializeableT& object,
@@ -141,7 +141,7 @@ void Serialization::Serializer::serializeMember(
 {
     // forward to virtual function that does member seperators
     if (!firstMember) {
-        serializeSeperator(os);
+        os << Supplier::Seperator;
     } else {
         firstMember = false;
     }
@@ -164,8 +164,9 @@ void Serialization::Serializer::serializeMember(
  * @param object 
  * @param firstMember 
  */
+template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
-void Serialization::Serializer::serializeMember(
+void Serialization::Serializer<Supplier>::serializeMember(
     std::ostream& os,
     const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
     const SerializeableT& object,
@@ -186,8 +187,8 @@ template <class MemberT,
         !std::is_same_v<char, MemberT> &&
         !std::is_same_v<int, MemberT> &&
         !std::is_same_v<const char*, MemberT> &&
-        !std::is_same_v<bool, MemberT>, int>  = 0>
-void Serialization::Serializer::serializeType(std::ostream& os)
+        !std::is_same_v<bool, MemberT>, int>>
+void Serialization::Serializer<Supplier>::serializeType(std::ostream& os)
 {
     serializeStructure<MemberT>(os);
 }
@@ -200,8 +201,8 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  */
 template <class Supplier>
 template <class MemberT,
-    typename std::enable_if_t<std::is_same_v<char, MemberT>, int> = 0>
-void Serialization::Serializer::serializeType(std::ostream& os)
+    typename std::enable_if_t<std::is_same_v<char, MemberT>, int>>
+void Serialization::Serializer<Supplier>::serializeType(std::ostream& os)
 {
     os << Supplier::TypeChar;
 }
@@ -214,8 +215,8 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  */
 template <class Supplier>
 template <class MemberT,
-    typename std::enable_if_t<std::is_same_v<int, MemberT>, int> = 0>
-void Serialization::Serializer::serializeType(std::ostream& os)
+    typename std::enable_if_t<std::is_same_v<int, MemberT>, int>>
+void Serialization::Serializer<Supplier>::serializeType(std::ostream& os)
 {
     os << Supplier::TypeInt;
 }
@@ -228,8 +229,8 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  */
 template <class Supplier>
 template <class MemberT,
-    typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int> = 0>
-void Serialization::Serializer::serializeType(std::ostream& os)
+    typename std::enable_if_t<std::is_same_v<const char*, MemberT>, int>>
+void Serialization::Serializer<Supplier>::serializeType(std::ostream& os)
 {
     os << Supplier::TypeString;
 }
@@ -242,8 +243,8 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  */
 template <class Supplier>
 template <class MemberT,
-    typename std::enable_if_t<std::is_same_v<bool, MemberT>, int> = 0>
-void Serialization::Serializer::serializeType(std::ostream& os)
+    typename std::enable_if_t<std::is_same_v<bool, MemberT>, int>>
+void Serialization::Serializer<Supplier>::serializeType(std::ostream& os)
 {
     os << Supplier::TypeBool;
 }
@@ -258,7 +259,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  */
 template <class Supplier>
 template <class SerializeableT, class MemberT>
-void Serialization::Serializer::serializeMemberDescriptors(
+void Serialization::Serializer<Supplier>::serializeMemberDescriptors(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
     bool& firstDescriptor)
@@ -289,7 +290,7 @@ void Serialization::Serializer::serializeMemberDescriptors(
  */
 template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
-constexpr void Serialization::Serializer::serializeMemberDescriptors(
+constexpr void Serialization::Serializer<Supplier>::serializeMemberDescriptors(
     std::ostream& os,
     const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
     bool& firstDescriptor)
@@ -308,7 +309,7 @@ constexpr void Serialization::Serializer::serializeMemberDescriptors(
  */
 template <class Supplier>
 template <class SerializeableT, class MemberT>
-constexpr void Serialization::Serializer::serializeFunctionDescriptors(
+constexpr void Serialization::Serializer<Supplier>::serializeFunctionDescriptors(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
     bool& firstDescriptor)
@@ -329,7 +330,7 @@ constexpr void Serialization::Serializer::serializeFunctionDescriptors(
  */
 template <class Supplier>
 template <class SerializeableT, class ReturnT, class... ArgTs>
-void Serialization::Serializer::serializeFunctionDescriptors(
+void Serialization::Serializer<Supplier>::serializeFunctionDescriptors(
     std::ostream& os,
     const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
     bool& firstDescriptor)
@@ -345,7 +346,7 @@ void Serialization::Serializer::serializeFunctionDescriptors(
     os << Supplier::BeforeName << descriptor.getName() << Supplier::AfterName;
 
     // serialize arguments
-    os << Supplier::BeforeName << getFunctionArgumentsFieldName() << Supplier::AfterName << Supplier::ObjectStart;
+    os << Supplier::BeforeName << Supplier::FieldNameArguments << Supplier::AfterName << Supplier::ObjectStart;
 
     int ii = 0;
     bool firstElement = true;
@@ -356,7 +357,7 @@ void Serialization::Serializer::serializeFunctionDescriptors(
 
 template <class Supplier>
 template <class ArgT>
-void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement)
+void Serialization::Serializer<Supplier>::serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement)
 {
     // forward seperator serialization
     if (!firstElement) {

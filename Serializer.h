@@ -48,7 +48,7 @@ public:
             !(std::is_same_v<char, SerializeableT> ||
             std::is_same_v<int, SerializeableT> ||
             std::is_same_v<const char*, SerializeableT> ||
-            std::is_same_v<bool, SerializeableT>), int>  = 0>
+            std::is_same_v<bool, SerializeableT>), int> Dummy = 0>
     static void serialize(std::ostream& os, const SerializeableT& object);
 
     template <class SerializeableT,

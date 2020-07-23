@@ -21,6 +21,8 @@ class JSONSerializer;
 
 //--------------------------------- INCLUDES ----------------------------------
 
+#include "Serializer.h"
+
 namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
