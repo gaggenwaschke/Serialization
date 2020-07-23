@@ -23,6 +23,15 @@
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+template <class... MemberDescriptorArgTs>
+constexpr auto Serialization::Descriptor::makeClassDescriptor(
+    const char* const name,
+    MemberDescriptorArgTs&&... memberDescriptorArgs
+)
+{
+    return ClassDescriptor(name, make(std::forward<MemberDescriptorArgTs>(memberDescriptorArgs)...));
+}
+
 /**
  * @brief Makes a tuple of descriptors.
  * 
@@ -36,7 +45,8 @@
  * @param name name of the member shown to Serializers
  * @return constexpr auto tuple of descriptors
  */
-template<class SerializeableT, class MemberT>
+template<class SerializeableT, class MemberT,
+    typename std::enable_if_t<std::is_object_v<MemberT>, int> = 0>
 constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, const char* const name)
 {
     return std::make_tuple(MemberDescriptor(member, name));
@@ -57,10 +67,35 @@ constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, 
  * @param leftArgs arguements to create next descriptors from
  * @return constexpr auto tuple of descriptors
  */
-template<class SerializeableT, class MemberT, class... LeftArgTs>
+template<class SerializeableT, class MemberT, class... LeftArgTs,
+    typename std::enable_if_t<std::is_object_v<MemberT>, int> = 0>
 constexpr auto Serialization::Descriptor::make(MemberT SerializeableT::*member, const char* const name, LeftArgTs&&... leftArgs)
 {
     return std::tuple_cat(std::make_tuple(MemberDescriptor(member, name)), make(std::forward<LeftArgTs>(leftArgs)...));
+}
+
+template <class SerializeableT, class ReturnT, class... ArgTs>
+constexpr auto Serialization::Descriptor::make(
+    ReturnT (SerializeableT::*function)(ArgTs...),
+    const char* const name,
+    const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames)
+{
+    return std::make_tuple(
+        MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>(function, name, std::move(argumentNames))
+    );
+}
+
+template <class SerializeableT, class ReturnT, class... ArgTs, class... LeftArgTs>
+constexpr auto Serialization::Descriptor::make(
+    ReturnT (SerializeableT::*function)(ArgTs...),
+    const char* const name,
+    const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames,
+    LeftArgTs&&... leftArgs)
+{
+    return std::tuple_cat(
+        MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>(function, name, std::move(argumentNames)),
+        make(std::forward<LeftArgTs>(leftArgs)...)
+    );
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------

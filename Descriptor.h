@@ -21,6 +21,11 @@ class Descriptor;
 
 //--------------------------------- INCLUDES ----------------------------------
 
+#include "ClassDescriptor.h"
+#include "MemberFunctionDescriptor.h"
+#include <array>
+#include <tuple>
+
 namespace Serialization
 {
 //-------------------------------- CONSTANTS ----------------------------------
@@ -37,11 +42,32 @@ class Descriptor
     Descriptor(const Descriptor& other) = delete;
     Descriptor& operator=(const Descriptor& other) = delete;
 public:
-    template<class SerializeableT, class MemberT>
+    template <class... MemberDescriptorArgTs>
+    constexpr static auto makeClassDescriptor(
+        const char* const name,
+        MemberDescriptorArgTs&&... memberDescriptorArgs
+    );
+private:
+    template<class SerializeableT, class MemberT,
+        typename std::enable_if_t<std::is_object_v<MemberT>, int> = 0>
     constexpr static auto make(MemberT SerializeableT::*member, const char* const name);
 
-    template<class SerializeableT, class MemberT, class... LeftArgTs>
+    template<class SerializeableT, class MemberT, class... LeftArgTs,
+        typename std::enable_if_t<std::is_object_v<MemberT>, int> = 0>
     constexpr static auto make(MemberT SerializeableT::*member, const char* const name, LeftArgTs&&... leftArgs);
+
+    template <class SerializeableT, class ReturnT, class... ArgTs>
+    constexpr static auto make(
+        ReturnT (SerializeableT::*function)(ArgTs...),
+        const char* const name,
+        const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames);
+
+    template <class SerializeableT, class ReturnT, class... ArgTs, class... LeftArgTs>
+    constexpr static auto make(
+        ReturnT (SerializeableT::*function)(ArgTs...),
+        const char* const name,
+        const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames,
+        LeftArgTs&&... leftArgs);
 };
 } // Serialization
 

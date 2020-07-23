@@ -38,21 +38,29 @@ class MemberFunctionDescriptor
 {
     // delete default constructors
     MemberFunctionDescriptor() = delete;
-    MemberFunctionDescriptor(const MemberFunctionDescriptor& other) = delete;
-    MemberFunctionDescriptor& operator=(const MemberFunctionDescriptor& other) = delete;
+    
 public:
     using FunctionType = ReturnT (SerializeableT::*)(ArgTs...);
 
-    constexpr MemberFunctionDescriptor(const FunctionType function, const char* const name);
+    constexpr MemberFunctionDescriptor(const MemberFunctionDescriptor& other) = default;
+    constexpr MemberFunctionDescriptor& operator=(const MemberFunctionDescriptor& other) = default;
+    constexpr MemberFunctionDescriptor(
+        const FunctionType function,
+        const char* const name,
+        const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames);
     
-    constexpr ReturnT call(SerializeableT& object, ArgTs... arguments) const;
+    constexpr ReturnT call(SerializeableT& object, ArgTs&&... arguments) const;
     constexpr const char* const getName() const;
+
+    constexpr const char* const getArgumentName(const int index) const;
 
 private:
     /** member function pointer */
     const FunctionType function;
     /** name of the function */
-    const char* const name;  
+    const char* const name;
+    /** names of the function arguments */
+    const std::array<const char* const, sizeof...(ArgTs)> argumentNames;
 };
 } // Serialization
 

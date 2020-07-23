@@ -12,7 +12,6 @@
 //--------------------------------- INCLUDES ----------------------------------
 
 #include "Descriptor.h"
-#include "MemberFunctionDescriptor.h"
 #include "SerializerJSON.h"
 #include <iostream>
 #include <tuple>
@@ -28,7 +27,8 @@ private:
     int a;
 
 public:
-    static constexpr auto descriptors = Serialization::Descriptor::make(
+    static constexpr auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "InnerClass",
         &InnerClass::a, "a"
     );
 };
@@ -56,15 +56,16 @@ public:
     }
 
 public:
-    static constexpr auto descriptors = Serialization::Descriptor::make(
+    static constexpr auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "MyClass",
         &MyClass::a, "a",
         &MyClass::b, "b",
         &MyClass::c, "c",
         &MyClass::d, "d",
         &MyClass::e, "e",
-        &MyClass::f, "f"
+        &MyClass::f, "f",
+        &MyClass::fct, "fct", std::array<const char* const, 1>({"a"})
     );
-    
 };
 
 //-------------------------------- CONSTANTS ----------------------------------
@@ -73,13 +74,28 @@ public:
 
 //--------------------------- EXPOSED FUNCTIONS -------------------------------
 
+struct A
+{
+    int a;
+    char b;
+};
+
 int main(int argc, char* argv[], char* env[])
 {
     MyClass mc1{1, '2', 3, "Hello Serial World!", true};
     MyClass mc2{4, '5', 6, "This is going well", false};
 
     Serialization::JSONSerializer s1;
-    
+
+    auto descriptor = Serialization::Descriptor::makeClassDescriptor(
+        "A",
+        &A::a, "a",
+        &A::b, "b"
+    );
+
+    auto descriptor2 = Serialization::MemberFunctionDescriptor(&MyClass::fct, "fct", std::array<const char* const, 1>({"a"}));
+    descriptor2.call(mc1, 1);
+
     s1.serialize(std::cout, mc1);
     std::cout << std::endl;
     s1.serialize(std::cout, mc2);
@@ -87,7 +103,9 @@ int main(int argc, char* argv[], char* env[])
     s1.serializeStructure<MyClass>(std::cout);
     std::cout << std::endl;
 
-    std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+
+    //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
+    
 
     return 0;
 }

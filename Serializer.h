@@ -22,6 +22,8 @@ class Serializer;
 //--------------------------------- INCLUDES ----------------------------------
 
 #include <iostream>
+#include "MemberFunctionDescriptor.h"
+#include "MemberDescriptor.h"
 
 namespace Serialization
 {
@@ -66,6 +68,8 @@ protected:
 
     virtual void serializeObjectStart(std::ostream& os) = 0;
     virtual void serializeObjectEnd(std::ostream& os) = 0;
+    virtual void serializeArrayStart(std::ostream& os) = 0;
+    virtual void serializeArrayEnd(std::ostream& os) = 0;
     virtual void serializeName(std::ostream& os, const char* const name) = 0;
     virtual void serializeSeperator(std::ostream& os) = 0;
 
@@ -79,11 +83,23 @@ protected:
     virtual void serializeTypeBool(std::ostream& os) = 0;
     virtual void serializeTypeString(std::ostream& os) = 0;
 
+    virtual const char* const getClassNameFieldName() { return nullptr; }
+    virtual const char* const getMembersFieldName() { return nullptr; }
+    virtual const char* const getFunctionsFieldName() { return nullptr; }
+    virtual const char* const getFunctionArgumentsFieldName() { return nullptr; }
+
 private:
     template <class SerializeableT, class MemberT>
     void serializeMember(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+        const SerializeableT& object,
+        bool& firstMember);
+
+    template <class SerializeableT, class ReturnT, class... ArgTs>
+    void serializeMember(
+        std::ostream& os,
+        const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         const SerializeableT& object,
         bool& firstMember);
 
@@ -112,11 +128,31 @@ private:
     void serializeType(std::ostream& os);
 
     template <class SerializeableT, class MemberT>
-    void serializeDescriptor(
+    void serializeMemberDescriptors(
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         bool& firstDescriptor);
-    
+
+    template <class SerializeableT, class ReturnT, class... ArgTs>
+    void serializeMemberDescriptors(
+        std::ostream& os,
+        const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+        bool& firstDescriptor);
+
+    template <class SerializeableT, class MemberT>
+    void serializeFunctionDescriptors(
+        std::ostream& os,
+        const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+        bool& firstDescriptor);
+
+    template <class SerializeableT, class ReturnT, class... ArgTs>
+    void serializeFunctionDescriptors(
+        std::ostream& os,
+        const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+        bool& firstDescriptor);
+
+    template <class ArgT>
+    void serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement);
 };
 } // Serial
 

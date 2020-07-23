@@ -22,8 +22,11 @@
 
 template<class SerializeableT, class ReturnT, class... ArgTs>
 constexpr Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>::
-    MemberFunctionDescriptor(const FunctionType function, const char* const name) :
-    function(function), name(name)
+    MemberFunctionDescriptor(
+        const FunctionType function,
+        const char* const name,
+        const std::array<const char* const, sizeof...(ArgTs)>&& argumentNames) :
+    function(function), name(name), argumentNames(std::move(argumentNames))
 {
 }
 
@@ -32,7 +35,7 @@ constexpr Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs
 template<class SerializeableT, class ReturnT, class... ArgTs>
 constexpr ReturnT Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>::call(
     SerializeableT& object,
-    ArgTs... arguments) const
+    ArgTs&&... arguments) const
 {
     return (object.*function)(std::forward<ArgTs>(arguments)...);
 }
@@ -41,6 +44,12 @@ template<class SerializeableT, class ReturnT, class... ArgTs>
 constexpr const char* const Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>::getName() const
 {
     return name;
+}
+
+template<class SerializeableT, class ReturnT, class... ArgTs>
+constexpr const char* const Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>::getArgumentName(const int index) const
+{
+    return argumentNames[index];
 }
 
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------

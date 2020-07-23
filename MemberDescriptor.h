@@ -40,6 +40,8 @@ class MemberDescriptor
     MemberDescriptor() = delete;
 
 public:
+    constexpr MemberDescriptor(const MemberDescriptor& other) = default;
+    constexpr MemberDescriptor& operator=(const MemberDescriptor& other) = default;
     constexpr MemberDescriptor(const MemberT SerializeableT::*member, const char* const name);    
 
     constexpr MemberT getMemberValue(const SerializeableT& object) const;

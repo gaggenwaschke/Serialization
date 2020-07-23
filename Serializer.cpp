@@ -52,7 +52,7 @@ void Serialization::Serializer::serialize(std::ostream& os, const SerializeableT
     std::apply([&os, &object, this](const auto& ...descriptor){
         bool firstMember = true;
         (this->serializeMember(os, descriptor, object, firstMember), ...);
-    }, SerializeableT::descriptors);
+    }, SerializeableT::descriptor.memberDescriptors);
     serializeObjectEnd(os);
 }
 
@@ -94,10 +94,30 @@ template <class SerializeableT>
 void Serialization::Serializer::serializeStructure(std::ostream& os)
 {
     serializeObjectStart(os);
+
+    // serialize name
+    serializeName(os, getClassNameFieldName());
+    serializeValue(os, SerializeableT::descriptor.getName());
+    serializeSeperator(os);
+
+    // serialize members
+    serializeName(os, getMembersFieldName());
+    serializeObjectStart(os);
     std::apply([&os, this](const auto& ...descriptor){
         bool firstDescriptor = true;
-        (this->serializeDescriptor(os, descriptor, firstDescriptor), ...);
-    }, SerializeableT::descriptors);
+        (this->serializeMemberDescriptors(os, descriptor, firstDescriptor), ...);
+    }, SerializeableT::descriptor.memberDescriptors);
+    serializeObjectEnd(os);
+    serializeSeperator(os);
+
+    // serialize functions
+    serializeName(os, getFunctionsFieldName());
+    serializeObjectStart(os);
+    std::apply([&os, this](const auto& ...descriptor){
+        bool firstDescriptor = true;
+        (this->serializeFunctionDescriptors(os, descriptor, firstDescriptor), ...);
+    }, SerializeableT::descriptor.memberDescriptors);
+    serializeObjectEnd(os);
     serializeObjectEnd(os);
 }
 
@@ -132,6 +152,29 @@ void Serialization::Serializer::serializeMember(
     serializeName(os, descriptor.getName());
     // forward to virtual functions for value output
     serialize(os, descriptor.getMemberValue(object));
+}
+
+/**
+ * @brief ignore member function descriptors.
+ * 
+ * @details this overload of the function does nothing
+ * 
+ * @tparam SerializeableT 
+ * @tparam ReturnT 
+ * @tparam ArgTs 
+ * @param os 
+ * @param descriptor 
+ * @param object 
+ * @param firstMember 
+ */
+template <class SerializeableT, class ReturnT, class... ArgTs>
+void Serialization::Serializer::serializeMember(
+    std::ostream& os,
+    const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+    const SerializeableT& object,
+    bool& firstMember)
+{
+    // do nothing
 }
 
 /**
@@ -212,7 +255,7 @@ void Serialization::Serializer::serializeType(std::ostream& os)
  * @param descriptor 
  */
 template <class SerializeableT, class MemberT>
-void Serialization::Serializer::serializeDescriptor(
+void Serialization::Serializer::serializeMemberDescriptors(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
     bool& firstDescriptor)
@@ -229,6 +272,95 @@ void Serialization::Serializer::serializeDescriptor(
 
     // forward serialization of type info
     serializeType<MemberT>(os);
+}
+
+/**
+ * @brief overload for ignoring memberFunctionDescriptors
+ * 
+ * @tparam SerializeableT 
+ * @tparam ReturnT 
+ * @tparam ArgTs 
+ * @param os 
+ * @param descriptor 
+ * @param firstDescriptor 
+ */
+template <class SerializeableT, class ReturnT, class... ArgTs>
+void Serialization::Serializer::serializeMemberDescriptors(
+    std::ostream& os,
+    const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+    bool& firstDescriptor)
+{
+    // do nothing
+}
+
+/**
+ * @brief this overload of the function ignores MEmberDescriptors
+ * 
+ * @tparam SerializeableT 
+ * @tparam MemberT 
+ * @param os 
+ * @param descriptor 
+ * @param firstDescriptor 
+ */
+template <class SerializeableT, class MemberT>
+void Serialization::Serializer::serializeFunctionDescriptors(
+    std::ostream& os,
+    const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+    bool& firstDescriptor)
+{
+    // do nothing
+}
+
+
+/**
+ * @brief serialize function descriptors to a stream
+ * 
+ * @tparam SerializeableT 
+ * @tparam ReturnT 
+ * @tparam ArgTs 
+ * @param os 
+ * @param descriptor 
+ * @param firstDescriptor 
+ */
+template <class SerializeableT, class ReturnT, class... ArgTs>
+void Serialization::Serializer::serializeFunctionDescriptors(
+    std::ostream& os,
+    const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+    bool& firstDescriptor)
+{
+    // forward seperator serialization
+    if (!firstDescriptor) {
+        serializeSeperator(os);
+    } else {
+        firstDescriptor = false;
+    }
+
+    // forward member name serialization
+    serializeName(os, descriptor.getName());
+
+    // serialize arguments
+    serializeName(os, getFunctionArgumentsFieldName());
+    serializeObjectStart(os);
+
+    int ii = 0;
+    bool firstElement = true;
+    (serializeFunctionArgument<ArgTs>(os, descriptor.getArgumentName(ii++), firstElement), ...);
+
+    serializeObjectEnd(os);
+}
+
+template <class ArgT>
+void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement)
+{
+    // forward seperator serialization
+    if (!firstElement) {
+        serializeSeperator(os);
+    } else {
+        firstElement = false;
+    }
+
+    serializeName(os, name);
+    serializeType<ArgT>(os);
 }
 
 //---------------------------- STATIC FUNCTIONS -------------------------------
