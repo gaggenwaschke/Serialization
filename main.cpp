@@ -99,7 +99,7 @@ int main(int argc, char* argv[], char* env[])
     std::ofstream myfile;
     constexpr size_t count = 1e7;
     myfile.open("/dev/null");
-    myfile << "{";
+    myfile << "[";
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (size_t ii = 0; ii < count; ++ii) {
         Serialization::Serializer<Serialization::JSONSerializer>::serialize(myfile, mc1);
@@ -109,7 +109,7 @@ int main(int argc, char* argv[], char* env[])
         }
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    myfile << "}";
+    myfile << "]";
     std::cout << "Made " << count << " serializations in " <<
         std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "µs" << std::endl;
 
