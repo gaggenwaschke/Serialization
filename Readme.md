@@ -19,5 +19,5 @@ bd08f6efdda0a3f76d205ea7154c4b2c7cac9cfe | replaced real file with "/dev/null" |
 bd08f6efdda0a3f76d205ea7154c4b2c7cac9cfe | replaced real file with "/dev/null" | -Os | 1e7 | 8264227 | 25,7
 7fd09e440b9419292aba909e1db143d4777f2d51 | removed inheritance, use templates | -Og -g | 1e7 | 8773384 | 451,5
 7fd09e440b9419292aba909e1db143d4777f2d51 | removed inheritance, use templates | -Ofast | 1e7 | 6635195 | 25,0
-7fd09e440b9419292aba909e1db143d4777f2d51 | removed inheritance, use templates | -Os | 1e7 |  | 8894198 | 19,3
+7fd09e440b9419292aba909e1db143d4777f2d51 | removed inheritance, use templates | -Os | 1e7 | 8894198 | 19,3
 
