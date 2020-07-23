@@ -51,6 +51,16 @@ protected:
         os << "}";
     }
 
+    virtual void serializeArrayStart(std::ostream& os) override
+    {
+        os << "[";
+    }
+    
+    virtual void serializeArrayEnd(std::ostream& os) override
+    {
+        os << "]";
+    }
+
     virtual void serializeName(std::ostream& os, const char* const name) override
     {
         os << "\"" << name << "\":";
@@ -109,6 +119,16 @@ protected:
     virtual const char* const getMembersFieldName() override
     {
         return "Members";
+    }
+
+    virtual const char* const getFunctionsFieldName() override
+    {
+        return "Functions";
+    }
+
+    virtual const char* const getFunctionArgumentsFieldName() override
+    {
+        return "Arguments";
     }
 };
 } // Serialization
