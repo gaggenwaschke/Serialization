@@ -22,6 +22,8 @@ class Serializer;
 //--------------------------------- INCLUDES ----------------------------------
 
 #include <iostream>
+#include "MemberFunctionDescriptor.h"
+#include "MemberDescriptor.h"
 
 namespace Serialization
 {
@@ -90,6 +92,13 @@ private:
         const SerializeableT& object,
         bool& firstMember);
 
+    template <class SerializeableT, class ReturnT, class... ArgTs>
+    void serializeMember(
+        std::ostream& os,
+        const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+        const SerializeableT& object,
+        bool& firstMember);
+
     template <class MemberT,
         typename std::enable_if_t<
             !std::is_same_v<char, MemberT> &&
@@ -119,7 +128,12 @@ private:
         std::ostream& os,
         const MemberDescriptor<SerializeableT, MemberT>& descriptor,
         bool& firstDescriptor);
-    
+
+    template <class SerializeableT, class MemberT, class... ArgTs>
+    void serializeDescriptor(
+        std::ostream& os,
+        const MemberFunctionDescriptor<SerializeableT, MemberT, ArgTs...>& descriptor,
+        bool& firstDescriptor);
 };
 } // Serial
 

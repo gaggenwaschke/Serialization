@@ -141,6 +141,29 @@ void Serialization::Serializer::serializeMember(
 }
 
 /**
+ * @brief ignore member function descriptors.
+ * 
+ * @details this overload of the function does nothing
+ * 
+ * @tparam SerializeableT 
+ * @tparam ReturnT 
+ * @tparam ArgTs 
+ * @param os 
+ * @param descriptor 
+ * @param object 
+ * @param firstMember 
+ */
+template <class SerializeableT, class ReturnT, class... ArgTs>
+void Serialization::Serializer::serializeMember(
+    std::ostream& os,
+    const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
+    const SerializeableT& object,
+    bool& firstMember)
+{
+    // do nothing
+}
+
+/**
  * @brief recurses to serialize encapsulated serializeable types.
  * 
  * @tparam MemberT serializeable type.
@@ -221,6 +244,26 @@ template <class SerializeableT, class MemberT>
 void Serialization::Serializer::serializeDescriptor(
     std::ostream& os,
     const MemberDescriptor<SerializeableT, MemberT>& descriptor,
+    bool& firstDescriptor)
+{
+    // forward seperator serialization
+    if (!firstDescriptor) {
+        serializeSeperator(os);
+    } else {
+        firstDescriptor = false;
+    }
+
+    // forward member name serialization
+    serializeName(os, descriptor.getName());
+
+    // forward serialization of type info
+    serializeType<MemberT>(os);
+}
+
+template <class SerializeableT, class MemberT, class... ArgTs>
+void Serialization::Serializer::serializeDescriptor(
+    std::ostream& os,
+    const MemberFunctionDescriptor<SerializeableT, MemberT, ArgTs...>& descriptor,
     bool& firstDescriptor)
 {
     // forward seperator serialization

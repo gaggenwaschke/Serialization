@@ -93,7 +93,6 @@ int main(int argc, char* argv[], char* env[])
         &A::b, "b"
     );
 
-/*
     auto descriptor2 = Serialization::MemberFunctionDescriptor(&MyClass::fct, "fct", std::array<const char* const, 1>({"a"}));
     descriptor2.call(mc1, 1);
 
@@ -103,7 +102,7 @@ int main(int argc, char* argv[], char* env[])
     std::cout << std::endl;
     s1.serializeStructure<MyClass>(std::cout);
     std::cout << std::endl;
-*/
+
 
     //std::cout << "number of decriptors: " << std::tuple_size<decltype(MyClass::descriptors)>::value << std::endl;
     
