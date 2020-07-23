@@ -150,6 +150,9 @@ private:
         std::ostream& os,
         const MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>& descriptor,
         bool& firstDescriptor);
+
+    template <class ArgT>
+    void serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement);
 };
 } // Serial
 

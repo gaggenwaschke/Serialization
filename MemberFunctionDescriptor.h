@@ -52,6 +52,8 @@ public:
     constexpr ReturnT call(SerializeableT& object, ArgTs&&... arguments) const;
     constexpr const char* const getName() const;
 
+    constexpr const char* const getArgumentName(const int index) const;
+
 private:
     /** member function pointer */
     const FunctionType function;

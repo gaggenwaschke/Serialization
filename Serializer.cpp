@@ -342,9 +342,25 @@ void Serialization::Serializer::serializeFunctionDescriptors(
     serializeName(os, getFunctionArgumentsFieldName());
     serializeObjectStart(os);
 
-
+    int ii = 0;
+    bool firstElement = true;
+    (serializeFunctionArgument<ArgTs>(os, descriptor.getArgumentName(ii++), firstElement), ...);
 
     serializeObjectEnd(os);
+}
+
+template <class ArgT>
+void Serialization::Serializer::serializeFunctionArgument(std::ostream& os, const char* const name, bool& firstElement)
+{
+    // forward seperator serialization
+    if (!firstElement) {
+        serializeSeperator(os);
+    } else {
+        firstElement = false;
+    }
+
+    serializeName(os, name);
+    serializeType<ArgT>(os);
 }
 
 //---------------------------- STATIC FUNCTIONS -------------------------------

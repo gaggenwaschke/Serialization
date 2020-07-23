@@ -46,6 +46,12 @@ constexpr const char* const Serialization::MemberFunctionDescriptor<Serializeabl
     return name;
 }
 
+template<class SerializeableT, class ReturnT, class... ArgTs>
+constexpr const char* const Serialization::MemberFunctionDescriptor<SerializeableT, ReturnT, ArgTs...>::getArgumentName(const int index) const
+{
+    return argumentNames[index];
+}
+
 //----------------------- INTERFACE IMPLEMENTATIONS ---------------------------
 
 //--------------------------- PRIVATE FUNCTIONS -------------------------------
