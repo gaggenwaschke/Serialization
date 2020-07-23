@@ -99,8 +99,8 @@ int main(int argc, char* argv[], char* env[])
 
     // test time
     std::ofstream myfile;
-    constexpr size_t count = 1e6;
-    myfile.open("example.json");
+    constexpr size_t count = 1e7;
+    myfile.open("/dev/null");
     myfile << "{";
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (size_t ii = 0; ii < count; ++ii) {
