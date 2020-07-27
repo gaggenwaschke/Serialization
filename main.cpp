@@ -52,7 +52,6 @@ private:
     bool e;
     InnerClass f;
 
-public:
     int fct(int a){
         std::cout << "Hello from fct" << std::endl;
         return a;
