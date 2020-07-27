@@ -14,10 +14,12 @@
 #include "Descriptor.h"
 #include "SerializerJSON.h"
 #include <iostream>
-#include <tuple>
+#include <array>
+#include <cmath>
 
 #include <chrono>
 #include <fstream>
+#include <numeric>
 
 //--------------------------- STRUCTS AND ENUMS -------------------------------
 
@@ -98,21 +100,37 @@ int main(int argc, char* argv[], char* env[])
 
     // test time
     std::ofstream myfile;
-    constexpr size_t count = 1e7;
-    myfile.open("/dev/null");
-    myfile << "{";
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    for (size_t ii = 0; ii < count; ++ii) {
-        s1.serialize(myfile, mc1);
-        if (ii < (count -1))
-        {
-           myfile << ",";
+    constexpr size_t count = 1e5;
+    constexpr size_t runs = 1e2;
+
+    std::array<long int, runs> times;
+
+    for (size_t run = 0; run < runs; ++run) {
+        myfile.open("/dev/null");
+        myfile << "{";
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        for (size_t ii = 0; ii < count; ++ii) {
+            s1.serialize(myfile, mc1);
+            if (ii < (count - 1))
+            {
+            myfile << ",";
+            }
         }
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        myfile << "}";
+        myfile.close();
+        times[run] = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
     }
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    myfile << "}";
-    std::cout << "Made " << count << " serializations in " <<
-        std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "µs" << std::endl;
+
+    auto average = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+    double stdDeviat = 0.0;
+    for (auto time : times) {
+        stdDeviat += (time-average) * (time-average);
+    }
+    stdDeviat /= (times.size());
+    stdDeviat = sqrt(stdDeviat);
+    std::cout << "Made " << count << " serializations in an average of " <<
+        average << "µs with a standard deviation of " << stdDeviat << "µs" << std::endl;
 
     return 0;
 }
