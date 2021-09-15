@@ -7,7 +7,6 @@
  * @license MIT
  */
 
-
 #include <tuple>
 #include <concepts>
 #include <iostream>
@@ -118,7 +117,9 @@ constexpr auto operator+(
         const basic_const_string<SizeFirst, CharType>& first,
         const basic_const_string<SizeSecond, CharType>& second)
 {
-    return std::views::join(v);
+    basic_const_string<SizeFirst + SizeSecond, CharType> new_string{first};
+    std::copy(std::ranges::cbegin(second), std::ranges::cend(second), new_string[SizeFirst]);
+    return new_string;
 }
 
 /*--------------------*/
