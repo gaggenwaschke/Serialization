@@ -51,6 +51,9 @@ void test_string()
 
     constexpr auto s6 = s2 + s3;
     std::cout << s6 << std::endl;
+
+    constexpr auto size = std::tuple_size_v<decltype(s6)>;
+    std::cout << size << std::endl;
 }
 
 void test_reflective()

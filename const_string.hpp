@@ -13,15 +13,28 @@
 #include <concepts>
 #include <ranges>
 
-template <typename range_type, typename char_type>
+/**
+ * Concept checks whether an input range can yield a certain type
+ * and whether the input range has an overload for std::tuple_size.
+ *
+ * @tparam input_range Range to check.
+ * @tparam char_type   Type to check for.
+ */
+template <typename input_range, typename char_type>
 concept compile_time_input_for =
-    std::ranges::input_range<range_type> &&
+    std::ranges::input_range<input_range> &&
     requires()
 {
-  std::is_convertible_v<std::ranges::range_value_t<range_type>, char_type>;
-  typename std::tuple_size<range_type>;
+  std::is_convertible_v<std::ranges::range_value_t<input_range>, char_type>;
+  typename std::tuple_size<input_range>;
 };
 
+/**
+ * Compile time constant string class.
+ *
+ * @tparam _size      Size of the string.
+ * @tparam _char_type Type of the characters of the string.
+ */
 template <std::size_t _size, typename _char_type>
 class basic_const_string
 {
@@ -117,4 +130,11 @@ constexpr auto operator+(
   basic_const_string<size_first + size_second, CharType> new_string{first};
   std::copy(std::ranges::cbegin(second), std::ranges::cend(second), &(new_string[size_first]));
   return new_string;
+}
+
+namespace std
+{
+  template <std::size_t size, typename char_type>
+  struct tuple_size<basic_const_string<size, char_type>> :
+      std::integral_constant<std::size_t, size>{};
 }
