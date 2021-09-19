@@ -36,12 +36,10 @@ concept compile_time_input_for =
  * @tparam _char_type Type of the characters of the string.
  */
 template <std::size_t _size, typename _char_type>
-class basic_const_string
+struct basic_const_string
 {
-private:
   std::array<_char_type, _size> data;
 
-public:
   using char_type = _char_type;
   constexpr static std::size_t Size{_size};
 

@@ -16,15 +16,24 @@ struct A
     int member_1;
     int member_2;
 
-    void func_1() {std::cout << "func_1" << std::endl;}
-
-    constexpr static std::string_view class_name{"A"};
-    constexpr static auto descriptors = std::make_tuple(
-            member_descriptor{"member_1", &A::member_1},
-            member_descriptor{"member_2", &A::member_2},
-            member_descriptor{"func_1", &A::func_1}
-    );
+    void func_1() {std::cout << "func_1" << std::endl;};
 };
+
+namespace reflection {
+template <>
+struct struct_name<A>
+{
+  constexpr static const_string value = {"A"};
+};
+
+template <>
+struct descriptor<A>{
+  constexpr static auto value =
+      std::make_tuple(member_descriptor{"member_1", &A::member_1},
+                      member_descriptor{"member_2", &A::member_2},
+                      member_descriptor{"func_1", &A::func_1});
+};
+}
 
 void test_string()
 {
@@ -58,7 +67,7 @@ void test_string()
 
 void test_reflective()
 {
-    std::cout << (reflective<A> ? "A is reflective." : "A is not reflective.") << std::endl;
+    std::cout << (reflection::reflective<A> ? "A is reflective." : "A is not reflective.") << std::endl;
 
 }
 
