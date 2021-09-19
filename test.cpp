@@ -10,6 +10,7 @@
 #include "const_string.hpp"
 #include "descriptor.hpp"
 #include <iostream>
+#include <string_view>
 
 struct A
 {
@@ -65,10 +66,25 @@ void test_string()
     std::cout << size << std::endl;
 }
 
+template <typename candidate_type>
+requires (reflection::reflective<candidate_type>)
+void test(candidate_type, std::string_view)
+{
+  std::cout << reflection::struct_name<candidate_type>::value << " is reflective" << std::endl;
+}
+
+template <typename candidate_type>
+requires (!reflection::reflective<candidate_type>)
+    void test(candidate_type, std::string_view name)
+{
+  std::cout << name << " not reflective" << std::endl;
+}
+
 void test_reflective()
 {
-    std::cout << (reflection::reflective<A> ? "A is reflective." : "A is not reflective.") << std::endl;
-
+  test(A{}, "A");
+  test(get<0>(reflection::descriptor<A>::value), "get<0>(descriptor<A>)");
+  test(reflection::descriptor<A>::value, "descriptor<A>");
 }
 
 int main()
